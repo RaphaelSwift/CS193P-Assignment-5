@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate
+class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICollisionBehaviorDelegate
 {
 
     @IBOutlet weak var gameView: BezierPathsView!
@@ -51,6 +51,12 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         animator.addBehavior(breakoutBehavior)
+        
+        for childBehavior in breakoutBehavior.childBehaviors {
+            if let collisionChildBehavior = childBehavior as? UICollisionBehavior {
+                    collisionChildBehavior.collisionDelegate = self
+            }
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -81,9 +87,23 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate
         }
     }
     
+    
+    
     //UIDynamicAnimatorDelegate 
     func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
         //TODO: To use later for extra credits
+    }
+    
+    //UICollisionBehaviorDelegate
+    func collisionBehavior(behavior: UICollisionBehavior, beganContactForItem item: UIDynamicItem, withBoundaryIdentifier identifier: NSCopying, atPoint p: CGPoint) {
+        
+        // Remove brick boundary on collision
+        if let identifier = identifier as? String {
+            if identifier.hasPrefix(PathNames.BrickBarrier) {
+                breakoutBehavior.removeBezierPath(named: identifier)
+                gameView.setBezierPath(nil, named: identifier)
+            }
+        }
     }
     
     // Initiliaze the game layout etc.

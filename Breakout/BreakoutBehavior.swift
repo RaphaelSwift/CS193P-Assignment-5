@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BreakoutBehavior: UIDynamicBehavior
+class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
 {
     private let collider = UICollisionBehavior()
     
@@ -35,6 +35,10 @@ class BreakoutBehavior: UIDynamicBehavior
         addChildBehavior(collider)
         addChildBehavior(pusher)
         addChildBehavior(ballBehavior)
+    }
+    
+    func removeBezierPath(named name: String) {
+        collider.removeBoundaryWithIdentifier(name)
     }
     
     func addBezierPath(path:UIBezierPath,named name: String) {
@@ -77,5 +81,9 @@ class BreakoutBehavior: UIDynamicBehavior
         //remove the ball from the its superView
         ball.removeFromSuperview()
     }
+    
+    
+    
+
     
 }
