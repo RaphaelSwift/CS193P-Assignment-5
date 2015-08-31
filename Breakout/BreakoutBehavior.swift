@@ -41,12 +41,16 @@ class BreakoutBehavior: UIDynamicBehavior
         collider.removeBoundaryWithIdentifier(name)
         collider.addBoundaryWithIdentifier(name, forPath: path)
     }
+    
+    func addLineSegment(fromPoint: CGPoint, toPoint: CGPoint, named name: String) {
+        collider.addBoundaryWithIdentifier(name, fromPoint: fromPoint, toPoint: toPoint)
+    }
    
     
     func addBall(ball:UIView) {
         
         // add the drop to the reference view (ie. it appears on screen)
-        dynamicAnimator?.referenceView?.addSubview(ball)
+        //dynamicAnimator?.referenceView?.addSubview(ball)
         
         // add collider ( collusion rule) to the ball
         collider.addItem(ball)
@@ -57,6 +61,21 @@ class BreakoutBehavior: UIDynamicBehavior
         // add dynamics behavior to the ball
         ballBehavior.addItem(ball)
         
+    }
+    
+    func removeBall(ball:UIView) {
+        
+        //remove the collider
+        collider.removeItem(ball)
+        
+        //remove the push behavior
+        collider.removeItem(ball)
+        
+        //remove the dynamic behavior
+        collider.removeItem(ball)
+        
+        //remove the ball from the its superView
+        ball.removeFromSuperview()
     }
     
 }

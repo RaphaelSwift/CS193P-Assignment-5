@@ -8,14 +8,14 @@
 
 import UIKit
 
-class BreakoutViewController: UIViewController
+class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate
 {
 
     @IBOutlet weak var gameView: BezierPathsView!
     
     private lazy var animator: UIDynamicAnimator = {
         let lazilyCreatedAnimator = UIDynamicAnimator(referenceView: self.gameView)
-        
+        lazilyCreatedAnimator.delegate = self
         return lazilyCreatedAnimator
     }()
     
@@ -25,6 +25,16 @@ class BreakoutViewController: UIViewController
     }
     
     private let breakoutBehavior = BreakoutBehavior()
+    
+    private var activeBallView: Bool = false
+    
+    private var ballView: UIView? {
+        didSet {
+            if !activeBallView && ballView != nil {
+                gameView.addSubview(ballView!)
+            }
+        }
+    }
     
     private var bricksPerRow = 5
     private var numberOfBricks = 20
@@ -37,8 +47,6 @@ class BreakoutViewController: UIViewController
     
     
     private let ballSize = CGSize(width: 10, height: 10)
-    
-    //private var paddleFillColor: UIColor = UIColor.blueColor()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,7 +72,18 @@ class BreakoutViewController: UIViewController
     }
     
     private func start() {
-        
+
+        if !activeBallView {
+            if let existingBallView = ballView {
+                breakoutBehavior.addBall(ballView!)
+                activeBallView = true
+            }
+        }
+    }
+    
+    //UIDynamicAnimatorDelegate 
+    func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
+        //TODO: To use later for extra credits
     }
     
     // Initiliaze the game layout etc.
@@ -76,35 +95,32 @@ class BreakoutViewController: UIViewController
         let paddle = CGRect(origin: paddleOrigin, size: paddleSize)
         let paddleBezierPath = UIBezierPath(roundedRect: paddle, cornerRadius: 5)
         
-        gameView.setBezierPaths([paddleBezierPath], named: PathNames.PaddleBarrier)
+        gameView.setBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
         breakoutBehavior.addBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
         
-        //Add the ball as a UIView, position it on the padde , in the middle
+        //Add the ball as a UIView, position it on the paddle , in the middle
         let ballOrigin = CGPoint(x: (paddleOrigin.x + paddleSize.width / 2 - ballSize.width / 2) , y: (paddleOrigin.y - ballSize.height))
         let ballFrame = CGRect(origin: ballOrigin, size: ballSize)
-        let ballView = UIView(frame: ballFrame)
-        ballView.backgroundColor = UIColor.redColor()
+        let ballViewFrame = UIView(frame: ballFrame)
+        ballViewFrame.backgroundColor = UIColor.redColor()
+        if ballView == nil  {
+            ballView = ballViewFrame
+        }
         
-        breakoutBehavior.addBall(ballView)
-        
-        // Draw the game bounds
+        // Define the game bounds/barrier
         let gameBoundLeftBezierPath = UIBezierPath()
         gameBoundLeftBezierPath.moveToPoint(CGPoint(x: gameView.frame.origin.x, y: gameView.frame.maxY))
         gameBoundLeftBezierPath.addLineToPoint(CGPoint(x: gameView.frame.origin.x, y: gameView.frame.origin.y))
-        gameView.setBezierPaths([gameBoundLeftBezierPath], named: PathNames.GameLeftBarrier)
         breakoutBehavior.addBezierPath(gameBoundLeftBezierPath, named: PathNames.GameLeftBarrier)
-        
         
         let gameBoundTopBezierPath = UIBezierPath()
         gameBoundTopBezierPath.moveToPoint(CGPoint(x: gameView.frame.origin.x, y: gameView.frame.origin.y))
         gameBoundTopBezierPath.addLineToPoint(CGPoint(x: gameView.frame.maxX, y: gameView.frame.origin.y))
-        gameView.setBezierPaths([gameBoundTopBezierPath], named: PathNames.GameTopBarrier)
         breakoutBehavior.addBezierPath(gameBoundTopBezierPath, named: PathNames.GameTopBarrier)
         
         let gameBoundRightBezierPath = UIBezierPath()
         gameBoundRightBezierPath.moveToPoint(CGPoint(x: gameView.frame.maxX, y: gameView.frame.origin.y))
         gameBoundRightBezierPath.addLineToPoint(CGPoint(x: gameView.frame.maxX, y: gameView.frame.maxY))
-        gameView.setBezierPaths([gameBoundRightBezierPath], named: PathNames.GameRightBarrier)
         breakoutBehavior.addBezierPath(gameBoundRightBezierPath, named: PathNames.GameRightBarrier)
         
         // Draw the bricks
@@ -122,8 +138,11 @@ class BreakoutViewController: UIViewController
         }
         
         } while bricksToAdd.count < numberOfBricks
-        
-        gameView.setBezierPaths(bricksToAdd, named: PathNames.BrickBarrier)
+
+        for (index,path) in enumerate(bricksToAdd) {
+            gameView.setBezierPath(path, named: "\(PathNames.BrickBarrier)\(index)")
+            breakoutBehavior.addBezierPath(path, named: "\(PathNames.BrickBarrier)\(index)")
+        }
         
     }
 }

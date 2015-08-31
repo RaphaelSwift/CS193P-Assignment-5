@@ -10,23 +10,16 @@ import UIKit
 
 class BezierPathsView: UIView {
     
-    private var bezierPaths = [String:[UIBezierPath]]()
+    private var bezierPaths = [String:UIBezierPath]()
     
-    func setBezierPaths(paths:[UIBezierPath]?, named name: String) {
-        bezierPaths[name] = paths
-        setNeedsDisplay()
-    }
-    
-    func clearBezierPaths(named name:String) {
-        bezierPaths[name] = []
+    func setBezierPath(path:UIBezierPath?, named name: String) {
+        bezierPaths[name] = path
         setNeedsDisplay()
     }
 
     override func drawRect(rect: CGRect) {
-        for (_, pathArray) in bezierPaths {
-            for path in pathArray {
-                path.stroke()
-            }
+        for (_ , path) in bezierPaths {
+            path.stroke()
         }
     }
 
