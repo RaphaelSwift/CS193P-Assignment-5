@@ -24,14 +24,10 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         return CGSize(width: paddleWidth, height: 20)
     }
     
-    private let breakoutBehavior = BreakoutBehavior()
-    
-    private var activeBallView: Bool = false
-    
-    private var ballView: UIView? {
+    private var paddleOrigin: CGPoint? {
         didSet {
-            if !activeBallView && ballView != nil {
-                gameView.addSubview(ballView!)
+            if paddleOrigin != nil {
+                setAndDrawPaddle() // setAndRedraw the paddle each time the origin changes
             }
         }
     }
@@ -45,8 +41,19 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         return CGSize(width: brickWidth, height: brickHeight)
     }
     
+    private let breakoutBehavior = BreakoutBehavior()
+    
+    private var activeBallView: Bool = false
     
     private let ballSize = CGSize(width: 10, height: 10)
+    
+    private var ballView: UIView? {
+        didSet {
+            if !activeBallView && ballView != nil {
+                gameView.addSubview(ballView!)
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,8 +84,24 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         start()
     }
     
+    // Move the paddle by panning on the screen
+    @IBAction func movePaddle(gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .Changed:
+            let translation = gesture.translationInView(gameView)
+            let paddleMove = translation.x
+            if paddleMove != 0 {
+                // ensure that the paddle remains within the game's bound
+                let newPaddleOrigin = min(max(paddleOrigin!.x + paddleMove, gameView.bounds.minX), gameView.bounds.maxX - paddleSize.width)
+                paddleOrigin?.x = newPaddleOrigin
+                gesture.setTranslation(CGPointZero, inView: gameView) // set to 0 for incremental change
+            }
+            
+        default: break
+        }
+    }
+    
     private func start() {
-
         if !activeBallView {
             if let existingBallView = ballView {
                 breakoutBehavior.addBall(ballView!)
@@ -87,8 +110,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    
-    
+
     //UIDynamicAnimatorDelegate 
     func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
         //TODO: To use later for extra credits
@@ -106,25 +128,34 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+
+
+    // Draw the paddle
+    private func setAndDrawPaddle() {
+        if paddleOrigin != nil {
+            let paddle = CGRect(origin: paddleOrigin!, size: paddleSize)
+            let paddleBezierPath = UIBezierPath(roundedRect: paddle, cornerRadius: 5)
+            
+            gameView.setBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
+            breakoutBehavior.addBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
+        }
+    }
+    
     // Initiliaze the game layout etc.
     private func initGameLayout() {
         
-
-        //Draw the paddle
-        let paddleOrigin = CGPoint(x: gameView.frame.midX  - paddleSize.width / 2, y: gameView.frame.maxY - paddleSize.height * 2)
-        let paddle = CGRect(origin: paddleOrigin, size: paddleSize)
-        let paddleBezierPath = UIBezierPath(roundedRect: paddle, cornerRadius: 5)
-        
-        gameView.setBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
-        breakoutBehavior.addBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
+        //Set the paddle origin
+        paddleOrigin = CGPoint(x: gameView.frame.midX  - paddleSize.width / 2, y: gameView.frame.maxY - paddleSize.height * 2)
         
         //Add the ball as a UIView, position it on the paddle , in the middle
-        let ballOrigin = CGPoint(x: (paddleOrigin.x + paddleSize.width / 2 - ballSize.width / 2) , y: (paddleOrigin.y - ballSize.height))
-        let ballFrame = CGRect(origin: ballOrigin, size: ballSize)
-        let ballViewFrame = UIView(frame: ballFrame)
-        ballViewFrame.backgroundColor = UIColor.redColor()
-        if ballView == nil  {
-            ballView = ballViewFrame
+        if let paddleOrigin = paddleOrigin {
+            let ballOrigin = CGPoint(x: (paddleOrigin.x + paddleSize.width / 2 - ballSize.width / 2) , y: (paddleOrigin.y - ballSize.height))
+            let ballFrame = CGRect(origin: ballOrigin, size: ballSize)
+            let ballViewFrame = UIView(frame: ballFrame)
+            ballViewFrame.backgroundColor = UIColor.redColor()
+            if ballView == nil  {
+                ballView = ballViewFrame
+            }
         }
         
         // Define the game bounds/barrier

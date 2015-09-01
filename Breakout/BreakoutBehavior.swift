@@ -42,12 +42,8 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
     }
     
     func addBezierPath(path:UIBezierPath,named name: String) {
-        collider.removeBoundaryWithIdentifier(name)
+        removeBezierPath(named: name)
         collider.addBoundaryWithIdentifier(name, forPath: path)
-    }
-    
-    func addLineSegment(fromPoint: CGPoint, toPoint: CGPoint, named name: String) {
-        collider.addBoundaryWithIdentifier(name, fromPoint: fromPoint, toPoint: toPoint)
     }
    
     
