@@ -113,7 +113,14 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
 
     //UIDynamicAnimatorDelegate 
     func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
-        //TODO: To use later for extra credits
+        // The dynamicAnimator pauses when all the balls are off the screen
+        ballView = nil
+        activeBallView = false
+        initGameLayout()
+    }
+    
+    func dynamicAnimatorWillResume(animator: UIDynamicAnimator) {
+        
     }
     
     //UICollisionBehaviorDelegate

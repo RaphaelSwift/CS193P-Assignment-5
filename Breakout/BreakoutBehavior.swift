@@ -10,12 +10,36 @@ import UIKit
 
 class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
 {
-    private let collider = UICollisionBehavior()
+    private lazy var collider: UICollisionBehavior =  {
+        let collider = UICollisionBehavior()
+        //Remove the ball when it leaves the game's bounds
+        collider.action = {
+            for item in collider.items {
+                if let ball = item as? UIView {
+                    let ballPosition = ball.center
+                    if self.dynamicAnimator?.referenceView?.pointInside(ballPosition, withEvent: nil) == false {
+                        self.removeBall(ball)
+                    }
+                }
+            }
+        }
+        
+        return collider
+        }()
     
-    private var pusher : UIPushBehavior = {
-        var lazilyCreatedPusher = UIPushBehavior(items: nil, mode: UIPushBehaviorMode.Instantaneous)
-        lazilyCreatedPusher.setAngle(2, magnitude: 0.05)
-        return lazilyCreatedPusher
+    private lazy var pusher : UIPushBehavior? = { //"Lazy" because we want to configure it
+        if let lazilyCreatedPusher = UIPushBehavior(items: nil, mode: UIPushBehaviorMode.Instantaneous) {
+            lazilyCreatedPusher.angle = 2
+            lazilyCreatedPusher.magnitude = 0.05
+            
+            // Remove it from its animator once it is done acting on its items
+            lazilyCreatedPusher.action = { [unowned lazilyCreatedPusher] in // mark as unowned to avoid memory cycle
+                lazilyCreatedPusher.dynamicAnimator?.removeBehavior(lazilyCreatedPusher)
+            }
+            return lazilyCreatedPusher
+        } else {
+            return nil
+            }
         }()
     
     private lazy var ballBehavior: UIDynamicItemBehavior = {
@@ -56,7 +80,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         collider.addItem(ball)
         
         // add the push behavior to the ball
-        pusher.addItem(ball)
+        pusher?.addItem(ball)
         
         // add dynamics behavior to the ball
         ballBehavior.addItem(ball)
@@ -69,17 +93,12 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         collider.removeItem(ball)
         
         //remove the push behavior
-        collider.removeItem(ball)
+        pusher?.removeItem(ball)
         
         //remove the dynamic behavior
-        collider.removeItem(ball)
+        ballBehavior.removeItem(ball)
         
         //remove the ball from the its superView
         ball.removeFromSuperview()
     }
-    
-    
-    
-
-    
 }
