@@ -41,7 +41,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
                 <tapGestureRecognizer id="TR5-6P-Fb3">
                     <connections>
-                        <action selector="start:" destination="BYZ-38-t0r" id="MLw-gL-jW8"/>
+                        <action selector="pushBall:" destination="BYZ-38-t0r" id="6JA-N6-Xhi"/>
                     </connections>
                 </tapGestureRecognizer>
                 <panGestureRecognizer minimumNumberOfTouches="1" id="brn-QW-pzM">

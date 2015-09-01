@@ -43,14 +43,14 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private let breakoutBehavior = BreakoutBehavior()
     
-    private var activeBallView: Bool = false
+    private var ballActivity: Bool = false
     
     private let ballSize = CGSize(width: 10, height: 10)
     
     private var ballView: UIView? {
         didSet {
-            if !activeBallView && ballView != nil {
-                gameView.addSubview(ballView!)
+            if !ballActivity && ballView != nil {
+                breakoutBehavior.addBall(ballView!)
             }
         }
     }
@@ -80,9 +80,14 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let BrickBarrier = "Brick Barrier"
     }
     
-    @IBAction func start(sender: UITapGestureRecognizer) {
-        start()
+    @IBAction func pushBall(sender: UITapGestureRecognizer) {
+        if ballView != nil {
+            breakoutBehavior.pushBall(ballView!)
+            ballActivity = true
+        }
     }
+    
+    
     
     // Move the paddle by panning on the screen
     @IBAction func movePaddle(gesture: UIPanGestureRecognizer) {
@@ -101,26 +106,20 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private func start() {
-        if !activeBallView {
-            if let existingBallView = ballView {
-                breakoutBehavior.addBall(ballView!)
-                activeBallView = true
-            }
-        }
-    }
-    
 
     //UIDynamicAnimatorDelegate 
     func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
-        // The dynamicAnimator pauses when all the balls are off the screen
-        ballView = nil
-        activeBallView = false
-        initGameLayout()
+        
+        // When the animators pauses, if there are no longer active items in the reference view and that the game is currently active, reinitalize the game.
+        if ballActivity && animator.itemsInRect(animator.referenceView!.frame).isEmpty {
+            ballActivity = false
+            ballView = nil
+            initGameLayout()
+        }
     }
     
     func dynamicAnimatorWillResume(animator: UIDynamicAnimator) {
-        
+        //TODO: use it when returning from setting tab ?
     }
     
     //UICollisionBehaviorDelegate

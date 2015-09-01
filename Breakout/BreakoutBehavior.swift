@@ -23,24 +23,8 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
                 }
             }
         }
-        
         return collider
-        }()
-    
-    private lazy var pusher : UIPushBehavior? = { //"Lazy" because we want to configure it
-        if let lazilyCreatedPusher = UIPushBehavior(items: nil, mode: UIPushBehaviorMode.Instantaneous) {
-            lazilyCreatedPusher.angle = 2
-            lazilyCreatedPusher.magnitude = 0.05
-            
-            // Remove it from its animator once it is done acting on its items
-            lazilyCreatedPusher.action = { [unowned lazilyCreatedPusher] in // mark as unowned to avoid memory cycle
-                lazilyCreatedPusher.dynamicAnimator?.removeBehavior(lazilyCreatedPusher)
-            }
-            return lazilyCreatedPusher
-        } else {
-            return nil
-            }
-        }()
+    }()
     
     private lazy var ballBehavior: UIDynamicItemBehavior = {
         let lazilyCreatedBallBehavior = UIDynamicItemBehavior()
@@ -57,7 +41,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         
         //Add the desired behaviors
         addChildBehavior(collider)
-        addChildBehavior(pusher)
+        //addChildBehavior(pusher)
         addChildBehavior(ballBehavior)
     }
     
@@ -69,18 +53,30 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         removeBezierPath(named: name)
         collider.addBoundaryWithIdentifier(name, forPath: path)
     }
+    
+    func pushBall(ball:UIView) {
+        if let pusher = UIPushBehavior(items: [ball], mode: UIPushBehaviorMode.Instantaneous) {
+            pusher.angle = 2
+            pusher.magnitude = 0.05
+            
+            // Remove it from its animator once it is done acting on its items
+            pusher.action = { [unowned pusher] in // mark as unowned to avoid memory cycle
+                pusher.removeItem(ball)
+                pusher.dynamicAnimator!.removeBehavior(pusher)
+            }
+            
+            addChildBehavior(pusher)
+        }
+    }
    
     
     func addBall(ball:UIView) {
         
         // add the drop to the reference view (ie. it appears on screen)
-        //dynamicAnimator?.referenceView?.addSubview(ball)
+        dynamicAnimator?.referenceView?.addSubview(ball)
         
         // add collider ( collusion rule) to the ball
         collider.addItem(ball)
-        
-        // add the push behavior to the ball
-        pusher?.addItem(ball)
         
         // add dynamics behavior to the ball
         ballBehavior.addItem(ball)
@@ -91,9 +87,6 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         
         //remove the collider
         collider.removeItem(ball)
-        
-        //remove the push behavior
-        pusher?.removeItem(ball)
         
         //remove the dynamic behavior
         ballBehavior.removeItem(ball)
