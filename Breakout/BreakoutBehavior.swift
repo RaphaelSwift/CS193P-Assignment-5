@@ -54,9 +54,10 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         collider.addBoundaryWithIdentifier(name, forPath: path)
     }
     
+    //Push the ball in a random direction
     func pushBall(ball:UIView) {
         if let pusher = UIPushBehavior(items: [ball], mode: UIPushBehaviorMode.Instantaneous) {
-            pusher.angle = 2
+            pusher.angle = CGFloat.randomRadian()
             pusher.magnitude = 0.05
             
             // Remove it from its animator once it is done acting on its items
@@ -93,5 +94,13 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         
         //remove the ball from the its superView
         ball.removeFromSuperview()
+    }
+}
+
+private extension CGFloat {
+    static func randomRadian() -> CGFloat {
+        let randomRadian = CGFloat(arc4random() % 361)
+        let pi = CGFloat(M_PI)
+        return CGFloat(randomRadian * pi / 180)
     }
 }

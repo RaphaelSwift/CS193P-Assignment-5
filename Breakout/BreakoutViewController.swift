@@ -95,13 +95,15 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     @IBAction func movePaddle(gesture: UIPanGestureRecognizer) {
         switch gesture.state {
         case .Changed:
-            let translation = gesture.translationInView(gameView)
-            let paddleMove = translation.x
-            if paddleMove != 0 {
-                // ensure that the paddle remains within the game's bound
-                let newPaddleOrigin = min(max(paddleOrigin!.x + paddleMove, gameView.bounds.minX), gameView.bounds.maxX - paddleSize.width)
-                paddleOrigin?.x = newPaddleOrigin
-                gesture.setTranslation(CGPointZero, inView: gameView) // set to 0 for incremental change
+            if ballActivity { // can only move the the paddle if the game is active (ie. ball is active)
+                let translation = gesture.translationInView(gameView)
+                let paddleMove = translation.x
+                if paddleMove != 0 {
+                    // ensure that the paddle remains within the game's bound
+                    let newPaddleOrigin = min(max(paddleOrigin!.x + paddleMove, gameView.bounds.minX), gameView.bounds.maxX - paddleSize.width)
+                    paddleOrigin?.x = newPaddleOrigin
+                    gesture.setTranslation(CGPointZero, inView: gameView) // set to 0 for incremental change
+                }
             }
             
         default: break
@@ -116,7 +118,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         if ballActivity && animator.itemsInRect(animator.referenceView!.frame).isEmpty {
             ballActivity = false
             ballView = nil
-            initGameLayout()
+            gameOverAlert()
         }
     }
     
@@ -168,6 +170,17 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 animations: {view.alpha = 0.0},
                 completion: { if $0 { view.removeFromSuperview() }})
         }
+    }
+    
+    private func gameOverAlert() {
+        let alert = UIAlertController (title: "Game Over", message: "Score : 3333", preferredStyle: UIAlertControllerStyle.Alert)
+        let action = UIAlertAction(title: "Replay", style: UIAlertActionStyle.Default) { (action) -> Void in
+            self.initGameLayout()
+        }
+        
+        alert.addAction(action)
+        presentViewController(alert, animated: true, completion: nil)
+    
     }
     
     // Initiliaze the game layout etc.
