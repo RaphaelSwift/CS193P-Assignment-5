@@ -419,6 +419,7 @@
 				F6E820511B941F86003E599E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F6E820521B941F86003E599E /* Build configuration list for PBXNativeTarget "BreakoutTests" */ = {
 			isa = XCConfigurationList;
@@ -427,6 +428,7 @@
 				F6E820541B941F86003E599E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

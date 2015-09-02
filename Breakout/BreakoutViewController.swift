@@ -32,6 +32,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    private var bricks = [String:UIView]()
+    
     private var bricksPerRow = 5
     private var numberOfBricks = 20
     
@@ -129,26 +131,54 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         if let identifier = identifier as? String {
             if identifier.hasPrefix(PathNames.BrickBarrier) {
                 breakoutBehavior.removeBezierPath(named: identifier)
-                gameView.setBezierPath(nil, named: identifier)
+                
+                // Remove the brick with animation, remove it from the superview only if the animation completes
+                if let brickToRemove = bricks.removeValueForKey(identifier) {
+                    animateBrickDisappearance(brickToRemove)
+                }
             }
         }
     }
-    
-
 
     // Draw the paddle
     private func setAndDrawPaddle() {
         if paddleOrigin != nil {
             let paddle = CGRect(origin: paddleOrigin!, size: paddleSize)
             let paddleBezierPath = UIBezierPath(roundedRect: paddle, cornerRadius: 5)
-            
             gameView.setBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
             breakoutBehavior.addBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
         }
     }
     
+    // Animates the disappearance of the brick
+    private func animateBrickDisappearance(view:UIView) {
+        UIView.transitionWithView(view,
+            duration: 0.3,
+            options: UIViewAnimationOptions.TransitionFlipFromBottom,
+            animations: {view.backgroundColor = UIColor.blueColor() },
+            completion: {if $0 {self.fadeAnimation(view)}})
+    }
+    
+    // Fades the view and remove it from superview when it completes
+    private func fadeAnimation(view:UIView) {
+        if view.alpha == 1.0 {
+            UIView.animateWithDuration(0.2,
+                delay: 0.0,
+                options: UIViewAnimationOptions.CurveEaseInOut,
+                animations: {view.alpha = 0.0},
+                completion: { if $0 { view.removeFromSuperview() }})
+        }
+    }
+    
     // Initiliaze the game layout etc.
     private func initGameLayout() {
+        
+        // Clear bricks
+        for (name,brick) in bricks {
+            brick.removeFromSuperview()
+            bricks.removeValueForKey(name)
+        }
+
         
         //Set the paddle origin
         paddleOrigin = CGPoint(x: gameView.frame.midX  - paddleSize.width / 2, y: gameView.frame.maxY - paddleSize.height * 2)
@@ -181,7 +211,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         breakoutBehavior.addBezierPath(gameBoundRightBezierPath, named: PathNames.GameRightBarrier)
         
         // Draw the bricks
-        var bricksToAdd = [UIBezierPath]()
+        var bricksToAdd = [CGRect]()
         var brickFrame = CGRect(x: 0, y: 0, width: brickSize.width, height: brickSize.height)
         
         do {
@@ -189,17 +219,26 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         brickFrame.origin.x = 0
         
         for _ in 0 ..< bricksPerRow {
-            let bezierPath = UIBezierPath(rect: brickFrame)
-            bricksToAdd.append(bezierPath)
+            bricksToAdd.append(brickFrame)
             brickFrame.origin.x += brickFrame.size.width
         }
         
         } while bricksToAdd.count < numberOfBricks
 
-        for (index,path) in enumerate(bricksToAdd) {
-            gameView.setBezierPath(path, named: "\(PathNames.BrickBarrier)\(index)")
-            breakoutBehavior.addBezierPath(path, named: "\(PathNames.BrickBarrier)\(index)")
+        for (index,frame) in enumerate(bricksToAdd) {
+            let brickPath = UIBezierPath(rect: frame)
+            let brickView = UIView(frame: frame)
+            let name = "\(PathNames.BrickBarrier)\(index)"
+            
+            // Add the brick as a boundary to the dynamic collision behavior
+            breakoutBehavior.addBezierPath(brickPath, named: name)
+            
+            // Add the brick as a subview to the reference view
+            brickView.backgroundColor = UIColor.greenColor()
+            gameView.addSubview(brickView)
+            bricks["\(PathNames.BrickBarrier)\(index)"]  = brickView
         }
-        
     }
+    
+    
 }
