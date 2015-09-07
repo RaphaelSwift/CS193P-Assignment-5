@@ -23,7 +23,7 @@ class UserDefaults {
         userDefaults.setObject(bounciness, forKey: Key.PreferedBallBounciness)
     }
     func fetchPreferedBallBounciness() -> Float? {
-        return userDefaults.objectForKey(Key.PreferedBallBounciness) as? Float ?? nil
+        return userDefaults.objectForKey(Key.PreferedBallBounciness) as? Float
     }
     
     func storeNumberOfBalls(numberOfBalls number: Int) {
@@ -31,7 +31,7 @@ class UserDefaults {
     }
     
     func fetchNumberOfBalls() -> Int? {
-        return userDefaults.objectForKey(Key.NumberOfBalls) as? Int ?? nil
+        return userDefaults.objectForKey(Key.NumberOfBalls) as? Int
     }
     
     func storeNumberOfBricks(numberOfBricks number: Int) {
@@ -39,7 +39,7 @@ class UserDefaults {
     }
     
     func fetchNumberOfBricks() -> Int? {
-        return userDefaults.objectForKey(Key.NumberOfBricks) as? Int ?? nil
+        return userDefaults.objectForKey(Key.NumberOfBricks) as? Int
     }
     
 }

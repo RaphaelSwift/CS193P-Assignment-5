@@ -11,6 +11,17 @@ import UIKit
 class SettingsTableViewController: UITableViewController {
 
 
+    @IBOutlet weak var stepper: UIStepper! {
+        didSet {
+            if let bricks = userDefaults.fetchNumberOfBricks() {
+                stepper.value = Double(bricks)
+            } else {
+                stepper.value = stepper.minimumValue
+            }
+            numberOfBricksLabel.text = "\(Int(stepper.value))"
+        }
+    }
+    @IBOutlet weak var numberOfBricksLabel: UILabel!
     @IBOutlet weak var numberOfBallSegmentedControl: UISegmentedControl! {
         didSet {
             numberOfBallSegmentedControl.selectedSegmentIndex = (userDefaults.fetchNumberOfBalls() ?? 1) - 1
@@ -28,6 +39,15 @@ class SettingsTableViewController: UITableViewController {
     func storeNumberOfBalls(segmentController: UISegmentedControl) {
         userDefaults.storeNumberOfBalls(numberOfBalls: segmentController.selectedSegmentIndex + 1)
     }
+    
+    @IBAction func changedNumberOfBricks(sender: UIStepper) {
+        numberOfBricksLabel.text = "\(Int(sender.value))"
+    }
+    
+    @IBAction func changeNumberOfBricksTouchUpInside(sender: UIStepper) {
+        userDefaults.storeNumberOfBricks(numberOfBricks: Int(sender.value))
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -70,16 +70,26 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="cnn-rv-DbT" id="Ja0-Bl-Pq2">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" maximumValue="100" translatesAutoresizingMaskIntoConstraints="NO" id="BDu-4V-Wdr">
-                                                    <rect key="frame" x="8" y="8" width="94" height="29"/>
-                                                </stepper>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z1z-HD-jlM">
-                                                    <rect key="frame" x="279" y="12" width="42" height="21"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z1z-HD-jlM">
+                                                    <rect key="frame" x="110" y="12" width="42" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="5" minimumValue="5" maximumValue="30" stepValue="5" translatesAutoresizingMaskIntoConstraints="NO" id="BDu-4V-Wdr">
+                                                    <rect key="frame" x="8" y="8" width="94" height="29"/>
+                                                    <connections>
+                                                        <action selector="changeNumberOfBricksTouchUpInside:" destination="kGR-AE-iLZ" eventType="touchUpInside" id="qPe-hM-kDp"/>
+                                                        <action selector="changedNumberOfBricks:" destination="kGR-AE-iLZ" eventType="valueChanged" id="ugj-ns-m2i"/>
+                                                    </connections>
+                                                </stepper>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstItem="BDu-4V-Wdr" firstAttribute="leading" secondItem="Ja0-Bl-Pq2" secondAttribute="leadingMargin" id="1o4-so-Zoj"/>
+                                                <constraint firstItem="BDu-4V-Wdr" firstAttribute="centerY" secondItem="z1z-HD-jlM" secondAttribute="centerY" id="5by-Q1-LWZ"/>
+                                                <constraint firstItem="BDu-4V-Wdr" firstAttribute="top" secondItem="Ja0-Bl-Pq2" secondAttribute="topMargin" id="Ink-uq-QFT"/>
+                                                <constraint firstItem="z1z-HD-jlM" firstAttribute="leading" secondItem="BDu-4V-Wdr" secondAttribute="trailing" constant="8" id="JGa-xt-y0n"/>
+                                            </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                 </cells>
@@ -142,16 +152,22 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="TfF-yi-REN" id="EZP-8t-Ris">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lru-K3-JiC">
-                                                    <rect key="frame" x="543" y="5" width="51" height="31"/>
-                                                </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Gravitional Pull" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aDO-w4-5ey">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Gravitional Pull" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aDO-w4-5ey">
                                                     <rect key="frame" x="8" y="13" width="116" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lru-K3-JiC">
+                                                    <rect key="frame" x="543" y="8" width="51" height="31"/>
+                                                </switch>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstItem="aDO-w4-5ey" firstAttribute="top" secondItem="EZP-8t-Ris" secondAttribute="topMargin" constant="5" id="6Ka-yG-oNh"/>
+                                                <constraint firstItem="Lru-K3-JiC" firstAttribute="centerY" secondItem="aDO-w4-5ey" secondAttribute="centerY" id="CJg-fk-7cj"/>
+                                                <constraint firstItem="aDO-w4-5ey" firstAttribute="leading" secondItem="EZP-8t-Ris" secondAttribute="leadingMargin" id="WtY-sn-v7V"/>
+                                                <constraint firstItem="Lru-K3-JiC" firstAttribute="trailing" secondItem="EZP-8t-Ris" secondAttribute="trailingMargin" id="rPN-fg-Hwi"/>
+                                            </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                 </cells>
@@ -166,6 +182,8 @@
                     <connections>
                         <outlet property="bouncinessSlider" destination="Sxy-oN-hbJ" id="0cZ-Kx-iad"/>
                         <outlet property="numberOfBallSegmentedControl" destination="2xN-du-Z5g" id="OGg-U7-ecw"/>
+                        <outlet property="numberOfBricksLabel" destination="z1z-HD-jlM" id="kNj-m1-rKP"/>
+                        <outlet property="stepper" destination="BDu-4V-Wdr" id="lth-Xr-hjK"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="L3C-S7-ETb" userLabel="First Responder" sceneMemberID="firstResponder"/>

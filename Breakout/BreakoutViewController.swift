@@ -48,7 +48,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     
     private var bricksPerRow = 5
-    private var numberOfBricks = 5
+    
+    private var numberOfBricks: Int {
+        return userDefaults.fetchNumberOfBricks() ?? 5
+    }
+    
+    private var numberOfBricksForCurrentGame: Int?
+    
     private var numberOfBalls: Int  {
         return userDefaults.fetchNumberOfBalls() ?? 1
     }
@@ -223,6 +229,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             }
             ballView = nil
             ballView = createAndPlaceBallAtInitialPosition()
+            clearBricks()
 
         }
         
@@ -278,6 +285,14 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     }
     
     private func createBricks() {
+        
+        var numberOfBricksTemp: Int?
+        if !gameIsActive {
+            numberOfBricksTemp = numberOfBricks
+            numberOfBricksForCurrentGame = numberOfBricks
+        } else {
+            numberOfBricksTemp = numberOfBricksForCurrentGame
+        }
 
         var bricksToReplace = [String]()
         
@@ -296,13 +311,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             brickFrame.origin.x = 0
             
             for _ in 0 ..< bricksPerRow {
-                if bricksToAdd.count < numberOfBricks {
+                if bricksToAdd.count < numberOfBricksTemp {
                     bricksToAdd.append(brickFrame)
                     brickFrame.origin.x += brickFrame.size.width
                 }
             }
             
-        } while bricksToAdd.count < numberOfBricks
+        } while bricksToAdd.count < numberOfBricksTemp
         
         for (index,frame) in enumerate(bricksToAdd) {
             let brickPath = UIBezierPath(rect: frame)
