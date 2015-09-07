@@ -15,6 +15,8 @@
 		F6E820561B941FEC003E599E /* BreakoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E820551B941FEC003E599E /* BreakoutViewController.swift */; };
 		F6E820581B94209A003E599E /* BezierPathsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E820571B94209A003E599E /* BezierPathsView.swift */; };
 		F6E8205A1B944602003E599E /* BreakoutBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E820591B944602003E599E /* BreakoutBehavior.swift */; };
+		F6EAB9F81B9DCF8B008E445E /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EAB9F71B9DCF8B008E445E /* UserDefaults.swift */; };
+		F6EAB9FA1B9DD719008E445E /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EAB9F91B9DD719008E445E /* SettingsTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,8 @@
 		F6E820551B941FEC003E599E /* BreakoutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreakoutViewController.swift; sourceTree = "<group>"; };
 		F6E820571B94209A003E599E /* BezierPathsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BezierPathsView.swift; sourceTree = "<group>"; };
 		F6E820591B944602003E599E /* BreakoutBehavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreakoutBehavior.swift; sourceTree = "<group>"; };
+		F6EAB9F71B9DCF8B008E445E /* UserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
+		F6EAB9F91B9DD719008E445E /* SettingsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +88,8 @@
 				F6E820591B944602003E599E /* BreakoutBehavior.swift */,
 				F6E820551B941FEC003E599E /* BreakoutViewController.swift */,
 				F6E820571B94209A003E599E /* BezierPathsView.swift */,
+				F6EAB9F71B9DCF8B008E445E /* UserDefaults.swift */,
+				F6EAB9F91B9DD719008E445E /* SettingsTableViewController.swift */,
 				F6E820391B941F85003E599E /* Main.storyboard */,
 				F6E820331B941F85003E599E /* Supporting Files */,
 			);
@@ -219,6 +225,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6E820581B94209A003E599E /* BezierPathsView.swift in Sources */,
+				F6EAB9F81B9DCF8B008E445E /* UserDefaults.swift in Sources */,
+				F6EAB9FA1B9DD719008E445E /* SettingsTableViewController.swift in Sources */,
 				F6E820361B941F85003E599E /* AppDelegate.swift in Sources */,
 				F6E8205A1B944602003E599E /* BreakoutBehavior.swift in Sources */,
 				F6E820561B941FEC003E599E /* BreakoutViewController.swift in Sources */,

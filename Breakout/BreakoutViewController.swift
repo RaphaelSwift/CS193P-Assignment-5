@@ -13,6 +13,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
 
     @IBOutlet weak var gameView: BezierPathsView!
     
+    private let userDefaults = UserDefaults()
+    
     private lazy var animator: UIDynamicAnimator = {
         let lazilyCreatedAnimator = UIDynamicAnimator(referenceView: self.gameView)
         lazilyCreatedAnimator.delegate = self
@@ -47,7 +49,9 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private var bricksPerRow = 5
     private var numberOfBricks = 5
-    private var numberOfBalls = 10
+    private var numberOfBalls: Int  {
+        return userDefaults.fetchNumberOfBalls() ?? 1
+    }
     
     private var brickSize: CGSize {
         let brickWidth = gameView.frame.width / CGFloat(bricksPerRow)
@@ -223,10 +227,12 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
         
         if gameIsActive {
-            for ball in ballView! {
-                if !CGRectIntersectsRect(ball.frame, gameView.bounds) {
-                    ball.center = gameView.center
-                    animator.updateItemUsingCurrentState(ball)
+            if ballView != nil {
+                for ball in ballView! {
+                    if !CGRectIntersectsRect(ball.frame, gameView.bounds) {
+                        ball.center = CGPoint(x: gameView.bounds.midX, y: gameView.bounds.midY)
+                        animator.updateItemUsingCurrentState(ball)
+                    }
                 }
             }
         }

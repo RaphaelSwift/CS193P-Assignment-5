@@ -31,13 +31,19 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
     
     private lazy var ballBehavior: UIDynamicItemBehavior = {
         let lazilyCreatedBallBehavior = UIDynamicItemBehavior()
-        lazilyCreatedBallBehavior.elasticity = 1.0 // 100% energy back on collision
+        lazilyCreatedBallBehavior.elasticity = self.ballBounciness // 100% energy back on collision
         lazilyCreatedBallBehavior.allowsRotation = false
         lazilyCreatedBallBehavior.resistance = 0.0
         lazilyCreatedBallBehavior.friction = 0.0
         
         return lazilyCreatedBallBehavior
     }()
+    
+    let userDefaults = UserDefaults()
+    
+    private var ballBounciness: CGFloat {
+        return CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0)
+        }
     
     var delegate: BreakoutBehaviorDelegate?
     
@@ -61,7 +67,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
     func pushBall(ball:UIView) {
         if let pusher = UIPushBehavior(items: [ball], mode: UIPushBehaviorMode.Instantaneous) {
             pusher.angle = CGFloat.randomRadian()
-            pusher.magnitude = 0.01
+            pusher.magnitude = 0.05
             
             // Remove it from its animator once it is done acting on its items
             pusher.action = { [unowned pusher] in // mark as unowned to avoid memory cycle
