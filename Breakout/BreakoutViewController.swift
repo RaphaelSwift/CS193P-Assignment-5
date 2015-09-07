@@ -32,16 +32,18 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private var bricks = [String:UIView]() {
+    private var bricks = [String:UIView]()
+    
+    private var bricksRemaining: Int? {
         didSet {
-            if bricks.count == 0 && gameIsActive { // Corresponds to the state where all the bricks have been eliminated
-                //breakoutBehavior.removeBall(ballView!)
+            if bricksRemaining == 0 { // Corresponds to the state where all the bricks have been eliminated
+                breakoutBehavior.removeBall(ballView!)
             }
         }
     }
     
     private var bricksPerRow = 5
-    private var numberOfBricks = 15
+    private var numberOfBricks = 5
     
     private var brickSize: CGSize {
         let brickWidth = gameView.frame.width / CGFloat(bricksPerRow)
@@ -51,7 +53,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private let breakoutBehavior = BreakoutBehavior()
     
-    private var gameIsActive: Bool = false
+    private var gameIsActive: Bool = false {
+        didSet {
+            if oldValue == false && gameIsActive == true {
+                bricksRemaining = numberOfBricks
+            }
+        }
+    }
     
     private let ballSize = CGSize(width: 10, height: 10)
     
@@ -109,7 +117,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                     gesture.setTranslation(CGPointZero, inView: gameView) // set to 0 for incremental change
                 }
             }
-            
         default: break
         }
     }
@@ -121,6 +128,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         if gameIsActive && animator.itemsInRect(animator.referenceView!.bounds).isEmpty {
             gameIsActive = false
             ballView = nil
+            
             gameOverAlert()
         }
     }
@@ -136,11 +144,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         if let identifier = identifier as? String {
             if identifier.hasPrefix(PathNames.BrickBarrier) {
                 breakoutBehavior.removeBezierPath(named: identifier)
-                
-                // Remove the brick with animation, remove it from the superview only if the animation completes
-                if let brickToRemove = bricks.removeValueForKey(identifier) {
-                    animateBrickDisappearance(brickToRemove)
-                }
+                animateBrickDisappearance(bricks.removeValueForKey(identifier)!)
+                bricksRemaining!--
             }
         }
     }
@@ -191,7 +196,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         placePaddleAtInitialPosition()
         
         if !gameIsActive {
-            createBricks()
             if ballView != nil {
                 breakoutBehavior.removeBall(ballView!)
             }
@@ -199,9 +203,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             ballView = createAndPlaceBallAtInitialPosition()
 
         }
-        else {
-            replaceBricks()
-        }
+        
+        createBricks()
         
         createGameBounds()
     }
@@ -222,59 +225,22 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    
     // Place the paddle at bottom of screen in the middle
     private func placePaddleAtInitialPosition() {
         paddleOrigin = CGPoint(x: gameView.bounds.midX  - paddleSize.width / 2, y: gameView.bounds.maxY - paddleSize.height * 2)
     }
     
     private func createBricks() {
-        
-        // Clear any preexisting bricks
-        for (name,brick) in bricks {
-            brick.removeFromSuperview()
-            bricks.removeValueForKey(name)
-        }
-        
-        // Set the bricks
-        var bricksToAdd = [CGRect]()
-        var brickFrame = CGRect(x: 0, y: 0, width: brickSize.width, height: brickSize.height)
-        
-        do {
-            brickFrame.origin.y += brickFrame.size.height
-            brickFrame.origin.x = 0
-            
-            for _ in 0 ..< bricksPerRow {
-                if bricksToAdd.count < numberOfBricks {
-                    bricksToAdd.append(brickFrame)
-                    brickFrame.origin.x += brickFrame.size.width
-                }
-            }
-            
-        } while bricksToAdd.count < numberOfBricks
-        
-        for (index,frame) in enumerate(bricksToAdd) {
-            let brickPath = UIBezierPath(rect: frame)
-            let brickView = UIView(frame: frame)
-            let name = "\(PathNames.BrickBarrier)\(index)"
-            
-            // Add the brick as a boundary to the dynamic collision behavior
-            breakoutBehavior.addBezierPath(brickPath, named: name)
-            
-            // Add the brick as a subview to the reference view
-            brickView.backgroundColor = UIColor.greenColor()
-            gameView.addSubview(brickView)
-            bricks[name] = brickView
-        }
-    }
-    
-    private func replaceBricks() {
-        //TODO: It's ugly, find a better way or mix with createBricks , use contains or return directly the new dictionary ?
+
         var bricksToReplace = [String]()
         
         for (name,brick) in bricks {
             brick.removeFromSuperview()
             bricks.removeValueForKey(name)
-            bricksToReplace.append(name)
+            if gameIsActive {
+                bricksToReplace.append(name)
+            }
         }
         
         // Set the bricks
@@ -298,9 +264,20 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             let brickPath = UIBezierPath(rect: frame)
             let brickView = UIView(frame: frame)
             let name = "\(PathNames.BrickBarrier)\(index)"
-            for brickNameToReplace in bricksToReplace {
             
-                if name == brickNameToReplace {
+            if bricksToReplace.count == 0 {
+                // Add the brick as a boundary to the dynamic collision behavior
+                breakoutBehavior.addBezierPath(brickPath, named: name)
+                
+                // Add the brick as a subview to the reference view
+                brickView.backgroundColor = UIColor.greenColor()
+                gameView.addSubview(brickView)
+                bricks[name] = brickView
+                
+            } else {
+                
+                if contains(bricksToReplace, name) {
+
                     // Add the brick as a boundary to the dynamic collision behavior
                     breakoutBehavior.addBezierPath(brickPath, named: name)
                     
@@ -311,8 +288,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 }
             }
         }
-        
-        
     }
     
     private func createGameBounds() {
