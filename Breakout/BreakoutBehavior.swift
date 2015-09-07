@@ -8,6 +8,10 @@
 
 import UIKit
 
+@objc protocol BreakoutBehaviorDelegate {
+    optional func didRemoveBall(ball: UIView, sender: BreakoutBehavior)
+}
+
 class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
 {
     private lazy var collider: UICollisionBehavior =  {
@@ -16,8 +20,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         collider.action = {
             for item in collider.items {
                 if let ball = item as? UIView {
-                    let ballPosition = ball.center
-                    if self.dynamicAnimator?.referenceView?.pointInside(ballPosition, withEvent: nil) == false { // Remove each ball that isn't within the reference view
+                    if !CGRectIntersectsRect(ball.frame, self.dynamicAnimator!.referenceView!.bounds) { // Remove each ball that isn't within the reference view
                         self.removeBall(ball)
                     }
                 }
@@ -36,14 +39,13 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         return lazilyCreatedBallBehavior
     }()
     
+    var delegate: BreakoutBehaviorDelegate?
+    
     override init() {
         super.init()
-        
         //Add the desired behaviors
         addChildBehavior(collider)
-        //addChildBehavior(pusher)
         addChildBehavior(ballBehavior)
-    
     }
     
     func removeBezierPath(named name: String) {
@@ -74,7 +76,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
     
     func addBall(ball:UIView) {
         
-        // add the drop to the reference view (ie. it appears on screen)
+        // add the ball to the reference view (ie. it appears on screen)
         dynamicAnimator?.referenceView?.addSubview(ball)
         
         // add collider ( collusion rule) to the ball
@@ -95,6 +97,8 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         
         //remove the ball from the its superView
         ball.removeFromSuperview()
+        
+        delegate?.didRemoveBall!(ball, sender: self)
     }
 }
 
