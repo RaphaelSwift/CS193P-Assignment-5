@@ -32,10 +32,16 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private var bricks = [String:UIView]()
+    private var bricks = [String:UIView]() {
+        didSet {
+            if bricks.count == 0 && gameIsActive { // Corresponds to the state where all the bricks have been eliminated
+                //breakoutBehavior.removeBall(ballView!)
+            }
+        }
+    }
     
     private var bricksPerRow = 5
-    private var numberOfBricks = 20
+    private var numberOfBricks = 15
     
     private var brickSize: CGSize {
         let brickWidth = gameView.frame.width / CGFloat(bricksPerRow)
@@ -45,13 +51,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private let breakoutBehavior = BreakoutBehavior()
     
-    private var ballActivity: Bool = false
+    private var gameIsActive: Bool = false
     
     private let ballSize = CGSize(width: 10, height: 10)
     
     private var ballView: UIView? {
         didSet {
-            if !ballActivity && ballView != nil {
+            if !gameIsActive && ballView != nil {
                 breakoutBehavior.addBall(ballView!)
             }
         }
@@ -85,17 +91,15 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     @IBAction func pushBall(sender: UITapGestureRecognizer) {
         if ballView != nil {
             breakoutBehavior.pushBall(ballView!)
-            ballActivity = true
+            gameIsActive = true
         }
     }
-    
-    
     
     // Move the paddle by panning on the screen
     @IBAction func movePaddle(gesture: UIPanGestureRecognizer) {
         switch gesture.state {
         case .Changed:
-            if ballActivity { // can only move the the paddle if the game is active (ie. ball is active)
+            if gameIsActive { // can only move the the paddle if the game is active (ie. ball is active)
                 let translation = gesture.translationInView(gameView)
                 let paddleMove = translation.x
                 if paddleMove != 0 {
@@ -109,14 +113,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         default: break
         }
     }
-    
 
     //UIDynamicAnimatorDelegate 
     func dynamicAnimatorDidPause(animator: UIDynamicAnimator) {
         
         // When the animators pauses, if there are no longer active items in the reference view and that the game is currently active, reinitalize the game.
-        if ballActivity && animator.itemsInRect(animator.referenceView!.frame).isEmpty {
-            ballActivity = false
+        if gameIsActive && animator.itemsInRect(animator.referenceView!.bounds).isEmpty {
+            gameIsActive = false
             ballView = nil
             gameOverAlert()
         }
@@ -180,21 +183,30 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         
         alert.addAction(action)
         presentViewController(alert, animated: true, completion: nil)
-    
     }
     
     // Initiliaze the game layout etc.
     private func initGameLayout() {
         
-        // Clear bricks
-        for (name,brick) in bricks {
-            brick.removeFromSuperview()
-            bricks.removeValueForKey(name)
-        }
-
+        placePaddleAtInitialPosition()
         
-        //Set the paddle origin
-        paddleOrigin = CGPoint(x: gameView.frame.midX  - paddleSize.width / 2, y: gameView.frame.maxY - paddleSize.height * 2)
+        if !gameIsActive {
+            createBricks()
+            if ballView != nil {
+                breakoutBehavior.removeBall(ballView!)
+            }
+            ballView = nil
+            ballView = createAndPlaceBallAtInitialPosition()
+
+        }
+        else {
+            replaceBricks()
+        }
+        
+        createGameBounds()
+    }
+    
+    private func createAndPlaceBallAtInitialPosition() -> UIView? {
         
         //Add the ball as a UIView, position it on the paddle , in the middle
         if let paddleOrigin = paddleOrigin {
@@ -202,42 +214,44 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             let ballFrame = CGRect(origin: ballOrigin, size: ballSize)
             let ballViewFrame = UIView(frame: ballFrame)
             ballViewFrame.backgroundColor = UIColor.redColor()
-            if ballView == nil  {
-                ballView = ballViewFrame
-            }
+            
+            return ballViewFrame
+
+        } else {
+            return nil
+        }
+    }
+    
+    // Place the paddle at bottom of screen in the middle
+    private func placePaddleAtInitialPosition() {
+        paddleOrigin = CGPoint(x: gameView.bounds.midX  - paddleSize.width / 2, y: gameView.bounds.maxY - paddleSize.height * 2)
+    }
+    
+    private func createBricks() {
+        
+        // Clear any preexisting bricks
+        for (name,brick) in bricks {
+            brick.removeFromSuperview()
+            bricks.removeValueForKey(name)
         }
         
-        // Define the game bounds/barrier
-        let gameBoundLeftBezierPath = UIBezierPath()
-        gameBoundLeftBezierPath.moveToPoint(CGPoint(x: gameView.frame.origin.x, y: gameView.frame.maxY))
-        gameBoundLeftBezierPath.addLineToPoint(CGPoint(x: gameView.frame.origin.x, y: gameView.frame.origin.y))
-        breakoutBehavior.addBezierPath(gameBoundLeftBezierPath, named: PathNames.GameLeftBarrier)
-        
-        let gameBoundTopBezierPath = UIBezierPath()
-        gameBoundTopBezierPath.moveToPoint(CGPoint(x: gameView.frame.origin.x, y: gameView.frame.origin.y))
-        gameBoundTopBezierPath.addLineToPoint(CGPoint(x: gameView.frame.maxX, y: gameView.frame.origin.y))
-        breakoutBehavior.addBezierPath(gameBoundTopBezierPath, named: PathNames.GameTopBarrier)
-        
-        let gameBoundRightBezierPath = UIBezierPath()
-        gameBoundRightBezierPath.moveToPoint(CGPoint(x: gameView.frame.maxX, y: gameView.frame.origin.y))
-        gameBoundRightBezierPath.addLineToPoint(CGPoint(x: gameView.frame.maxX, y: gameView.frame.maxY))
-        breakoutBehavior.addBezierPath(gameBoundRightBezierPath, named: PathNames.GameRightBarrier)
-        
-        // Draw the bricks
+        // Set the bricks
         var bricksToAdd = [CGRect]()
         var brickFrame = CGRect(x: 0, y: 0, width: brickSize.width, height: brickSize.height)
         
         do {
-        brickFrame.origin.y += brickFrame.size.height
-        brickFrame.origin.x = 0
-        
-        for _ in 0 ..< bricksPerRow {
-            bricksToAdd.append(brickFrame)
-            brickFrame.origin.x += brickFrame.size.width
-        }
-        
+            brickFrame.origin.y += brickFrame.size.height
+            brickFrame.origin.x = 0
+            
+            for _ in 0 ..< bricksPerRow {
+                if bricksToAdd.count < numberOfBricks {
+                    bricksToAdd.append(brickFrame)
+                    brickFrame.origin.x += brickFrame.size.width
+                }
+            }
+            
         } while bricksToAdd.count < numberOfBricks
-
+        
         for (index,frame) in enumerate(bricksToAdd) {
             let brickPath = UIBezierPath(rect: frame)
             let brickView = UIView(frame: frame)
@@ -249,9 +263,74 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             // Add the brick as a subview to the reference view
             brickView.backgroundColor = UIColor.greenColor()
             gameView.addSubview(brickView)
-            bricks["\(PathNames.BrickBarrier)\(index)"]  = brickView
+            bricks[name] = brickView
         }
     }
     
+    private func replaceBricks() {
+        //TODO: It's ugly, find a better way or mix with createBricks , use contains or return directly the new dictionary ?
+        var bricksToReplace = [String]()
+        
+        for (name,brick) in bricks {
+            brick.removeFromSuperview()
+            bricks.removeValueForKey(name)
+            bricksToReplace.append(name)
+        }
+        
+        // Set the bricks
+        var bricksToAdd = [CGRect]()
+        var brickFrame = CGRect(x: 0, y: 0, width: brickSize.width, height: brickSize.height)
+        
+        do {
+            brickFrame.origin.y += brickFrame.size.height
+            brickFrame.origin.x = 0
+            
+            for _ in 0 ..< bricksPerRow {
+                if bricksToAdd.count < numberOfBricks {
+                    bricksToAdd.append(brickFrame)
+                    brickFrame.origin.x += brickFrame.size.width
+                }
+            }
+            
+        } while bricksToAdd.count < numberOfBricks
+        
+        for (index,frame) in enumerate(bricksToAdd) {
+            let brickPath = UIBezierPath(rect: frame)
+            let brickView = UIView(frame: frame)
+            let name = "\(PathNames.BrickBarrier)\(index)"
+            for brickNameToReplace in bricksToReplace {
+            
+                if name == brickNameToReplace {
+                    // Add the brick as a boundary to the dynamic collision behavior
+                    breakoutBehavior.addBezierPath(brickPath, named: name)
+                    
+                    // Add the brick as a subview to the reference view
+                    brickView.backgroundColor = UIColor.greenColor()
+                    gameView.addSubview(brickView)
+                    bricks[name] = brickView
+                }
+            }
+        }
+        
+        
+    }
+    
+    private func createGameBounds() {
+        
+        let gameBoundLeftBezierPath = UIBezierPath()
+        gameBoundLeftBezierPath.moveToPoint(CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.maxY))
+        gameBoundLeftBezierPath.addLineToPoint(CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.origin.y))
+        breakoutBehavior.addBezierPath(gameBoundLeftBezierPath, named: PathNames.GameLeftBarrier)
+        
+        let gameBoundTopBezierPath = UIBezierPath()
+        gameBoundTopBezierPath.moveToPoint(CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.origin.y))
+        gameBoundTopBezierPath.addLineToPoint(CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.origin.y))
+        breakoutBehavior.addBezierPath(gameBoundTopBezierPath, named: PathNames.GameTopBarrier)
+        
+        let gameBoundRightBezierPath = UIBezierPath()
+        gameBoundRightBezierPath.moveToPoint(CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.origin.y))
+        gameBoundRightBezierPath.addLineToPoint(CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.maxY))
+        breakoutBehavior.addBezierPath(gameBoundRightBezierPath, named: PathNames.GameRightBarrier)
+    }
     
 }

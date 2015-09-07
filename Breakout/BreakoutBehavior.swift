@@ -17,7 +17,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
             for item in collider.items {
                 if let ball = item as? UIView {
                     let ballPosition = ball.center
-                    if self.dynamicAnimator?.referenceView?.pointInside(ballPosition, withEvent: nil) == false {
+                    if self.dynamicAnimator?.referenceView?.pointInside(ballPosition, withEvent: nil) == false { // Remove each ball that isn't within the reference view
                         self.removeBall(ball)
                     }
                 }
@@ -43,6 +43,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         addChildBehavior(collider)
         //addChildBehavior(pusher)
         addChildBehavior(ballBehavior)
+    
     }
     
     func removeBezierPath(named name: String) {
@@ -58,7 +59,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
     func pushBall(ball:UIView) {
         if let pusher = UIPushBehavior(items: [ball], mode: UIPushBehaviorMode.Instantaneous) {
             pusher.angle = CGFloat.randomRadian()
-            pusher.magnitude = 0.05
+            pusher.magnitude = 0.01
             
             // Remove it from its animator once it is done acting on its items
             pusher.action = { [unowned pusher] in // mark as unowned to avoid memory cycle
