@@ -41,6 +41,8 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
     
     let userDefaults = UserDefaults()
     
+    private let settingsTableViewController = SettingsTableViewController()
+    
     private var ballBounciness: CGFloat {
         return CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0)
         }
@@ -74,7 +76,6 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
                 pusher.removeItem(ball)
                 pusher.dynamicAnimator!.removeBehavior(pusher)
             }
-            
             addChildBehavior(pusher)
         }
     }
@@ -106,7 +107,13 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         
         delegate?.didRemoveBall!(ball, sender: self)
     }
+    
+    
+    func setElasticity(elasticity:CGFloat) {
+        ballBehavior.elasticity = elasticity
+    }
 }
+
 
 private extension CGFloat {
     static func randomRadian() -> CGFloat {

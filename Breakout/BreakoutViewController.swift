@@ -66,6 +66,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     }
     
     private let breakoutBehavior = BreakoutBehavior()
+    private let settings = SettingsTableViewController()
     
     private var gameIsActive: Bool = false {
         didSet {
@@ -75,7 +76,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private let ballSize = CGSize(width: 10, height: 10)
+    private let ballSize = CGSize(width: 12, height: 12)
     
     private var ballView: [UIView]? {
         didSet {
@@ -85,6 +86,12 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 }
             }
         }
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(true)
+        breakoutBehavior
+        breakoutBehavior.setElasticity(CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0))
     }
     
     override func viewDidLoad() {
@@ -103,6 +110,12 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         super.viewDidLayoutSubviews()
         initGameLayout()
         
+    }
+    
+    private struct Constants {
+        static let BallColor = UIColor.redColor()
+        static let BallCornerRadius: CGFloat = 5.0
+        static let BrickColor = UIColor.greenColor()
     }
 
     private struct PathNames {
@@ -259,7 +272,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 let ballOrigin = CGPoint(x: (paddleOrigin.x + paddleSize.width / 2 - ballSize.width / 2) , y: (paddleOrigin.y - ballSize.height))
                 let ballFrame = CGRect(origin: ballOrigin, size: ballSize)
                 let ballViewFrame = UIView(frame: ballFrame)
-                ballViewFrame.backgroundColor = UIColor.redColor()
+                ballViewFrame.layer.cornerRadius = Constants.BallCornerRadius
+                ballViewFrame.backgroundColor = Constants.BallColor
                 balls.append(ballViewFrame)
                 
             }
@@ -341,7 +355,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                     breakoutBehavior.addBezierPath(brickPath, named: name)
                     
                     // Add the brick as a subview to the reference view
-                    brickView.backgroundColor = UIColor.greenColor()
+                    brickView.backgroundColor = Constants.BrickColor
                     gameView.addSubview(brickView)
                     bricks[name] = brickView
                 }
@@ -366,5 +380,4 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         gameBoundRightBezierPath.addLineToPoint(CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.maxY))
         breakoutBehavior.addBezierPath(gameBoundRightBezierPath, named: PathNames.GameRightBarrier)
     }
-    
 }

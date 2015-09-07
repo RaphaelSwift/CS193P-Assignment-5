@@ -10,7 +10,6 @@ import UIKit
 
 class SettingsTableViewController: UITableViewController {
 
-
     @IBOutlet weak var stepper: UIStepper! {
         didSet {
             if let bricks = userDefaults.fetchNumberOfBricks() {
@@ -69,9 +68,6 @@ class SettingsTableViewController: UITableViewController {
         userDefaults.storePreferedBallBounciness(slider.value)
     }
     
-    @IBAction func changeNumberOfBalls(sender: UISegmentedControl) {
-        
-    }
     /*
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath) as! UITableViewCell
