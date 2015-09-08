@@ -100,12 +100,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let PointForEachRemainingBall = 10
     }
     
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(true)
-        //setBackgroundImage()
-        
-        breakoutBehavior.setElasticity(CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0))
-    }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -120,23 +115,36 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(true)
+        breakoutBehavior.setElasticity(CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0))
+        if gameIsActive {
+            breakoutBehavior.restartBalls()
+        }
+    }
+    
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         initGameLayout()
     }
     
+    override func viewWillDisappear(animated: Bool) {
+        if gameIsActive {
+            breakoutBehavior.stopBalls()
+        }
+    }
+    
     private struct Constants {
         static let BallColor = UIColor.redColor()
         static let BallCornerRadius: CGFloat = 5.0
-        static let BrickColor = UIColor(red:0.00, green:1.00, blue:0.00, alpha:0.8)
-        static let SpecialBrickColor = UIColor(red:0.00, green:0.00, blue:1.00, alpha:0.8)
+        static let BrickColor = UIColor(red:0.11, green:0.81, blue:0.15, alpha:0.5)
+        static let SpecialBrickColor = UIColor(red:0.00, green:0.00, blue:1.00, alpha:0.5)
         static let SpecialBallColor = UIColor.blueColor()
         static let BrickFadingColor = UIColor(red:0.00, green:0.85, blue:1.00, alpha:0.5)
         static let BrickBorderColor = UIColor.blackColor()
         static let BrickBorderWidth: CGFloat = 1
         static let DefaultOccurenceOfSpecialBricks = 0.15
-        static let BackgroundImage = "NebulaBackground"
         static let PaddleColor = UIColor(red: 0.00, green: 0.15, blue: 0.47, alpha: 0.7)
     }
 
@@ -163,13 +171,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 breakoutBehavior.pushBall(ball)
             }
             gameIsActive = true
-        }
-    }
-    
-    private func setBackgroundImage() {
-        
-        if let image = UIImage(named: Constants.BackgroundImage) {
-            gameView.backgroundColor = UIColor(patternImage: image)
         }
     }
     
@@ -207,10 +208,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             ballView = nil
             gameOverAlert()
         }
-    }
-    
-    func dynamicAnimatorWillResume(animator: UIDynamicAnimator) {
-        //TODO: use it when returning from setting tab ?
     }
     
     //MARK: - UICollisionBehaviorDelegate
@@ -261,7 +258,9 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         UIView.transitionWithView(view,
             duration: 0.3,
             options: UIViewAnimationOptions.TransitionFlipFromBottom,
-            animations: {view.backgroundColor = Constants.BrickFadingColor },
+            animations: {
+                view.backgroundColor = Constants.BrickFadingColor
+                view.layer.borderWidth = 0},
             completion: {if $0 {self.fadeAnimation(view)}})
     }
     
@@ -272,9 +271,9 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 delay: 0.0,
                 options: UIViewAnimationOptions.CurveEaseInOut,
                 animations: {view.alpha = 0.0},
-                completion: { if $0 {
-                    self.breakoutBehavior.removeBrick(view)
-                    view.removeFromSuperview() }})
+                completion: {
+                    if $0 {
+                        self.breakoutBehavior.removeBrick(view) }})
         }
     }
     

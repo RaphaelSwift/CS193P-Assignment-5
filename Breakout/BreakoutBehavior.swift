@@ -14,7 +14,20 @@ import UIKit
 
 class BreakoutBehavior: UIDynamicBehavior
 {
-    let gravity = UIGravityBehavior()
+    lazy var gravity: UIGravityBehavior = {
+        let gravity = UIGravityBehavior()
+        gravity.action = {
+            for item in gravity.items {
+                if let brick = item as? UIView {
+                    if !CGRectIntersectsRect(brick.frame, self.dynamicAnimator!.referenceView!.bounds) {
+                        self.removeBrick(brick)
+                    }
+                }
+                
+            }
+        }
+        return gravity
+        }()
     
     private lazy var collider: UICollisionBehavior =  {
         let collider = UICollisionBehavior()
@@ -50,6 +63,8 @@ class BreakoutBehavior: UIDynamicBehavior
         return CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0)
         }
     
+    var ballsVelocity = [UIView:CGPoint]()
+    
     var delegate: BreakoutBehaviorDelegate?
     
     override init() {
@@ -75,6 +90,7 @@ class BreakoutBehavior: UIDynamicBehavior
     
     func removeBrick(brick: UIView) {
         gravity.removeItem(brick)
+        brick.removeFromSuperview()
         
     }
     
@@ -104,7 +120,6 @@ class BreakoutBehavior: UIDynamicBehavior
         
         // add dynamics behavior to the ball
         ballBehavior.addItem(ball)
-        
     }
     
     func removeBall(ball:UIView) {
@@ -124,6 +139,26 @@ class BreakoutBehavior: UIDynamicBehavior
     
     func setElasticity(elasticity:CGFloat) {
         ballBehavior.elasticity = elasticity
+    }
+    
+    
+    func stopBalls() {
+        
+        ballsVelocity.removeAll()
+        
+        for ball in ballBehavior.items {
+            if let ball = ball as? UIView {
+                let velocity = ballBehavior.linearVelocityForItem(ball)
+                ballsVelocity[ball] = velocity
+                ballBehavior.addLinearVelocity(CGPoint(x: -velocity.x,y: -velocity.y), forItem: ball)
+            }
+        }
+    }
+    
+    func restartBalls() {
+        for (ball, velocity) in ballsVelocity {
+            ballBehavior.addLinearVelocity(velocity, forItem: ball)
+        }
     }
 }
 
