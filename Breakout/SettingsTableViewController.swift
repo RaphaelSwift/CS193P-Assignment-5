@@ -10,6 +10,11 @@ import UIKit
 
 class SettingsTableViewController: UITableViewController {
 
+    @IBOutlet weak var switcher: UISwitch! {
+        didSet {
+            switcher.on = userDefaults.fetchSpecialBrickPreference()
+        }
+    }
     @IBOutlet weak var stepper: UIStepper! {
         didSet {
             if let bricks = userDefaults.fetchNumberOfBricks() {
@@ -47,6 +52,9 @@ class SettingsTableViewController: UITableViewController {
         userDefaults.storeNumberOfBricks(numberOfBricks: Int(sender.value))
     }
     
+    @IBAction func switchSpecialBricksPreference(sender: UISwitch) {
+            userDefaults.storeSpecialBrickPreference(sender.on)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()

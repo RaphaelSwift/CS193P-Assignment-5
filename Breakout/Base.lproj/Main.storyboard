@@ -145,21 +145,24 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Section-4" id="yIt-em-oAp">
+                            <tableViewSection headerTitle="Special Bricks" id="yIt-em-oAp">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="47" id="TfF-yi-REN">
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="TfF-yi-REN" id="EZP-8t-Ris">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Gravitional Pull" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aDO-w4-5ey">
-                                                    <rect key="frame" x="8" y="13" width="116" height="21"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Special Bricks" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aDO-w4-5ey">
+                                                    <rect key="frame" x="8" y="13" width="110" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lru-K3-JiC">
                                                     <rect key="frame" x="543" y="8" width="51" height="31"/>
+                                                    <connections>
+                                                        <action selector="switchSpecialBricksPreference:" destination="kGR-AE-iLZ" eventType="valueChanged" id="dRn-eg-tX8"/>
+                                                    </connections>
                                                 </switch>
                                             </subviews>
                                             <constraints>
@@ -184,6 +187,7 @@
                         <outlet property="numberOfBallSegmentedControl" destination="2xN-du-Z5g" id="OGg-U7-ecw"/>
                         <outlet property="numberOfBricksLabel" destination="z1z-HD-jlM" id="kNj-m1-rKP"/>
                         <outlet property="stepper" destination="BDu-4V-Wdr" id="lth-Xr-hjK"/>
+                        <outlet property="switcher" destination="Lru-K3-JiC" id="MXf-gJ-wxm"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="L3C-S7-ETb" userLabel="First Responder" sceneMemberID="firstResponder"/>

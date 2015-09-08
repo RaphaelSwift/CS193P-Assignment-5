@@ -17,6 +17,7 @@ class UserDefaults {
         static let PreferedBallBounciness = "UserDefaults.Key.PreferedBallBounciness"
         static let NumberOfBalls = "UserDefaults.Key.NumberOfBalls"
         static let NumberOfBricks = "UserDefaults.Key.NumberOfBricks"
+        static let SpecialBricksPreference = "UserDefaults.Key.SpecialBricksPreference"
     }
     
     func storePreferedBallBounciness(bounciness: Float) {
@@ -42,4 +43,11 @@ class UserDefaults {
         return userDefaults.objectForKey(Key.NumberOfBricks) as? Int
     }
     
+    func storeSpecialBrickPreference(specialBricks:Bool) {
+        userDefaults.setObject(specialBricks, forKey: Key.SpecialBricksPreference)
+    }
+    
+    func fetchSpecialBrickPreference() -> Bool {
+        return userDefaults.objectForKey(Key.SpecialBricksPreference) as? Bool ?? true
+    }
 }

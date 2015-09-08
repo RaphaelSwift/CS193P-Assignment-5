@@ -46,7 +46,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    
     private var bricksPerRow = 5
     
     private var numberOfBricks: Int {
@@ -63,6 +62,10 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         let brickWidth = gameView.frame.width / CGFloat(bricksPerRow)
         let brickHeight = brickWidth / 4
         return CGSize(width: brickWidth, height: brickHeight)
+    }
+    
+    private var specialBricks: Bool {
+        return userDefaults.fetchSpecialBrickPreference()
     }
     
     private let breakoutBehavior = BreakoutBehavior()
@@ -117,6 +120,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let BrickColor = UIColor.greenColor()
         static let SpecialBrickColor = UIColor.magentaColor()
         static let SpecialBallColor = UIColor.magentaColor()
+        static let DefaultOccurenceOfSpecialBricks = 0.15
     }
 
     private struct PathNames {
@@ -388,15 +392,23 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     }
     
     private func randomBrick (brickView: UIView, brickIndex: Int) -> Brick {
-        if brickIndex % 6 == 0 {
-            brickView.backgroundColor = Constants.SpecialBrickColor
-            brickView.layer.borderWidth = 2
-            return Brick(view: brickView, type: .Special)
+        if specialBricks {
+            if brickIndex %  Int(1 / Constants.DefaultOccurenceOfSpecialBricks) == 0 {
+                brickView.backgroundColor = Constants.SpecialBrickColor
+                brickView.layer.borderWidth = 2
+                return Brick(view: brickView, type: .Special)
+            } else {
+                return createNormalBrick(brickView)
+            }
         } else {
-            brickView.backgroundColor = Constants.BrickColor
-            brickView.layer.borderWidth = 1
-            return Brick(view: brickView, type: .Normal)
+            return createNormalBrick(brickView)
         }
+    }
+    
+    private func createNormalBrick (brickView: UIView) -> Brick {
+        brickView.backgroundColor = Constants.BrickColor
+        brickView.layer.borderWidth = 1
+        return Brick(view: brickView, type: .Normal)
     }
     
     private func createGameBounds() {
