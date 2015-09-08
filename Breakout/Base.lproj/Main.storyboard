@@ -5,7 +5,7 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--Item-->
+        <!--Breakout View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="BreakoutViewController" customModule="Breakout" customModuleProvider="target" sceneMemberID="viewController">
@@ -17,9 +17,12 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="NebulaBackground" translatesAutoresizingMaskIntoConstraints="NO" id="I2c-9H-L99">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
+                            </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NfL-JC-bMq" customClass="BezierPathsView" customModule="Breakout" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <gestureRecognizers/>
                                 <connections>
                                     <outletCollection property="gestureRecognizers" destination="TR5-6P-Fb3" appends="YES" id="TKn-Ne-dXM"/>
@@ -29,13 +32,29 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="NfL-JC-bMq" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="JBo-wg-t6B"/>
-                            <constraint firstItem="NfL-JC-bMq" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="bdB-OC-AoA"/>
-                            <constraint firstItem="NfL-JC-bMq" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="kwb-zV-YPH"/>
-                            <constraint firstAttribute="trailing" secondItem="NfL-JC-bMq" secondAttribute="trailing" id="lou-Gn-odT"/>
+                            <constraint firstItem="NfL-JC-bMq" firstAttribute="leading" secondItem="I2c-9H-L99" secondAttribute="leading" id="41v-z2-HRZ"/>
+                            <constraint firstItem="NfL-JC-bMq" firstAttribute="trailing" secondItem="I2c-9H-L99" secondAttribute="trailing" id="7NU-OP-gbw"/>
+                            <constraint firstItem="NfL-JC-bMq" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="CxV-Ej-7HY"/>
+                            <constraint firstItem="NfL-JC-bMq" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="F5u-QM-KQ6"/>
+                            <constraint firstItem="I2c-9H-L99" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" symbolic="YES" id="Gub-d3-si6"/>
+                            <constraint firstItem="I2c-9H-L99" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Lvz-NC-Kn4"/>
+                            <constraint firstAttribute="trailing" secondItem="NfL-JC-bMq" secondAttribute="trailing" id="UHg-ak-Xvk"/>
+                            <constraint firstItem="I2c-9H-L99" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="e7W-K3-Up3"/>
+                            <constraint firstItem="I2c-9H-L99" firstAttribute="top" secondItem="NfL-JC-bMq" secondAttribute="top" id="iIG-y5-OfZ"/>
+                            <constraint firstItem="I2c-9H-L99" firstAttribute="trailing" secondItem="NfL-JC-bMq" secondAttribute="trailing" id="jAA-N8-lWa"/>
+                            <constraint firstItem="I2c-9H-L99" firstAttribute="leading" secondItem="NfL-JC-bMq" secondAttribute="leading" id="jB4-6c-vEo"/>
+                            <constraint firstItem="NfL-JC-bMq" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="sbU-00-OIk"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="Gub-d3-si6"/>
+                                <exclude reference="Lvz-NC-Kn4"/>
+                                <exclude reference="41v-z2-HRZ"/>
+                                <exclude reference="7NU-OP-gbw"/>
+                            </mask>
+                        </variation>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="lEm-Vd-ceY"/>
+                    <tabBarItem key="tabBarItem" title="" image="Game" id="lEm-Vd-ceY"/>
                     <connections>
                         <outlet property="gameView" destination="NfL-JC-bMq" id="gGe-Tu-ZuV"/>
                     </connections>
@@ -54,7 +73,7 @@
             </objects>
             <point key="canvasLocation" x="294" y="293"/>
         </scene>
-        <!--Item-->
+        <!--Settings Table View Controller-->
         <scene sceneID="Lzn-zi-tCE">
             <objects>
                 <tableViewController id="kGR-AE-iLZ" customClass="SettingsTableViewController" customModule="Breakout" customModuleProvider="target" sceneMemberID="viewController">
@@ -181,7 +200,7 @@
                             <outlet property="delegate" destination="kGR-AE-iLZ" id="0nh-F1-Y3S"/>
                         </connections>
                     </tableView>
-                    <tabBarItem key="tabBarItem" title="Item" id="7Aa-zx-gdY"/>
+                    <tabBarItem key="tabBarItem" image="Settings" id="7Aa-zx-gdY"/>
                     <connections>
                         <outlet property="bouncinessSlider" destination="Sxy-oN-hbJ" id="0cZ-Kx-iad"/>
                         <outlet property="numberOfBallSegmentedControl" destination="2xN-du-Z5g" id="OGg-U7-ecw"/>
@@ -214,4 +233,9 @@
             <point key="canvasLocation" x="-424" y="483"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Game" width="30" height="30"/>
+        <image name="NebulaBackground" width="2560" height="1440"/>
+        <image name="Settings" width="30" height="30"/>
+    </resources>
 </document>

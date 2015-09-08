@@ -93,12 +93,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private var gameScore: Int = 0 {
-        didSet {
-            println(gameScore)
-        }
-    }
-    
+    private var gameScore: Int = 0 
     private struct Score {
         static let PointPerBrickHit = 1
         static let PointForCompletingGame = 50
@@ -107,12 +102,14 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(true)
-        breakoutBehavior
+        //setBackgroundImage()
+        
         breakoutBehavior.setElasticity(CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0))
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         breakoutBehavior.delegate = self
         animator.addBehavior(breakoutBehavior)
         
@@ -123,6 +120,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         initGameLayout()
@@ -132,9 +130,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let BallColor = UIColor.redColor()
         static let BallCornerRadius: CGFloat = 5.0
         static let BrickColor = UIColor.greenColor()
-        static let SpecialBrickColor = UIColor.magentaColor()
-        static let SpecialBallColor = UIColor.magentaColor()
+        static let SpecialBrickColor = UIColor.cyanColor()
+        static let SpecialBallColor = UIColor.blueColor()
+        static let BrickFadingColor = UIColor.darkGrayColor()
+        static let BrickBorderColor = UIColor.darkGrayColor()
+        static let BrickBorderWidth: CGFloat = 1
         static let DefaultOccurenceOfSpecialBricks = 0.15
+        static let BackgroundImage = "NebulaBackground"
     }
 
     private struct PathNames {
@@ -160,6 +162,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 breakoutBehavior.pushBall(ball)
             }
             gameIsActive = true
+        }
+    }
+    
+    private func setBackgroundImage() {
+        
+        if let image = UIImage(named: Constants.BackgroundImage) {
+            gameView.backgroundColor = UIColor(patternImage: image)
         }
     }
     
@@ -250,7 +259,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         UIView.transitionWithView(view,
             duration: 0.3,
             options: UIViewAnimationOptions.TransitionFlipFromBottom,
-            animations: {view.backgroundColor = UIColor.blueColor() },
+            animations: {view.backgroundColor = Constants.BrickFadingColor },
             completion: {if $0 {self.fadeAnimation(view)}})
     }
     
@@ -280,6 +289,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     // Initiliaze the game layout etc.
     private func initGameLayout() {
+
         
         placePaddleAtInitialPosition()
         
@@ -414,7 +424,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         if specialBricks {
             if brickIndex %  Int(1 / Constants.DefaultOccurenceOfSpecialBricks) == 0 {
                 brickView.backgroundColor = Constants.SpecialBrickColor
-                brickView.layer.borderWidth = 2
+                brickView.layer.borderColor = Constants.BrickBorderColor.CGColor
+                brickView.layer.borderWidth = Constants.BrickBorderWidth
                 return Brick(view: brickView, type: .Special)
             } else {
                 return createNormalBrick(brickView)
@@ -426,7 +437,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private func createNormalBrick (brickView: UIView) -> Brick {
         brickView.backgroundColor = Constants.BrickColor
-        brickView.layer.borderWidth = 1
+        brickView.layer.borderColor = Constants.BrickBorderColor.CGColor
+        brickView.layer.borderWidth = Constants.BrickBorderWidth
         return Brick(view: brickView, type: .Normal)
     }
     
