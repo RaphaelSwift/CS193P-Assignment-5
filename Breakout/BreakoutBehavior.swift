@@ -12,10 +12,13 @@ import UIKit
     optional func didRemoveBall(ball: UIView, sender: BreakoutBehavior)
 }
 
-class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
+class BreakoutBehavior: UIDynamicBehavior
 {
+    let gravity = UIGravityBehavior()
+    
     private lazy var collider: UICollisionBehavior =  {
         let collider = UICollisionBehavior()
+        collider.collisionMode = UICollisionBehaviorMode.Boundaries
         //Remove the ball when it leaves the game's bounds
         collider.action = {
             for item in collider.items {
@@ -31,7 +34,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
     
     private lazy var ballBehavior: UIDynamicItemBehavior = {
         let lazilyCreatedBallBehavior = UIDynamicItemBehavior()
-        lazilyCreatedBallBehavior.elasticity = self.ballBounciness // 100% energy back on collision
+        lazilyCreatedBallBehavior.elasticity = self.ballBounciness
         lazilyCreatedBallBehavior.allowsRotation = false
         lazilyCreatedBallBehavior.resistance = 0.0
         lazilyCreatedBallBehavior.friction = 0.0
@@ -54,6 +57,7 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
         //Add the desired behaviors
         addChildBehavior(collider)
         addChildBehavior(ballBehavior)
+        addChildBehavior(gravity)
     }
     
     func removeBezierPath(named name: String) {
@@ -63,6 +67,15 @@ class BreakoutBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate
     func addBezierPath(path:UIBezierPath,named name: String) {
         removeBezierPath(named: name)
         collider.addBoundaryWithIdentifier(name, forPath: path)
+    }
+    
+    func addBrick(brick: UIView) {
+        gravity.addItem(brick)
+    }
+    
+    func removeBrick(brick: UIView) {
+        gravity.removeItem(brick)
+        
     }
     
     //Push the ball in a random direction

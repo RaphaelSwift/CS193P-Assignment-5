@@ -39,7 +39,9 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     private var bricksRemaining: Int? {
         didSet {
             if bricksRemaining == 0 { // Corresponds to the state where all the bricks have been eliminated
+                gameScore += Score.PointForCompletingGame
                 for ball in ballView! {
+                    gameScore += Score.PointForEachRemainingBall
                     breakoutBehavior.removeBall(ball)
                 }
             }
@@ -89,6 +91,18 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 }
             }
         }
+    }
+    
+    private var gameScore: Int = 0 {
+        didSet {
+            println(gameScore)
+        }
+    }
+    
+    private struct Score {
+        static let PointPerBrickHit = 1
+        static let PointForCompletingGame = 50
+        static let PointForEachRemainingBall = 10
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -197,7 +211,9 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             if identifier.hasPrefix(PathNames.BrickBarrier) {
                 let brick = bricks.removeValueForKey(identifier)!
                 breakoutBehavior.removeBezierPath(named: identifier)
+                breakoutBehavior.addBrick(brick.view)
                 animateBrickDisappearance(brick.view)
+                gameScore += Score.PointPerBrickHit
                 bricksRemaining!--
                 
                 if bricksRemaining != 0 && brick.type == .Special {
@@ -245,12 +261,14 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 delay: 0.0,
                 options: UIViewAnimationOptions.CurveEaseInOut,
                 animations: {view.alpha = 0.0},
-                completion: { if $0 { view.removeFromSuperview() }})
+                completion: { if $0 {
+                    self.breakoutBehavior.removeBrick(view)
+                    view.removeFromSuperview() }})
         }
     }
     
     private func gameOverAlert() {
-        let alert = UIAlertController (title: "Game Over", message: "Score : 3333", preferredStyle: UIAlertControllerStyle.Alert)
+        let alert = UIAlertController (title: "Game Over", message: "Score : \(gameScore)", preferredStyle: UIAlertControllerStyle.Alert)
         let action = UIAlertAction(title: "Replay", style: UIAlertActionStyle.Default) { (action) -> Void in
             self.clearBricks()
             self.initGameLayout()
@@ -274,6 +292,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             ballView = nil
             ballView = createAndPlaceBallAtInitialPosition()
             clearBricks()
+            gameScore = 0
 
         }
         
@@ -315,7 +334,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     // Place the paddle at bottom of screen in the middle
     private func placePaddleAtInitialPosition() {
-        paddleOrigin = CGPoint(x: gameView.bounds.midX  - paddleSize.width / 2, y: gameView.bounds.maxY - paddleSize.height * 2)
+        paddleOrigin = CGPoint(x: gameView.bounds.midX  - paddleSize.width / 2, y: gameView.bounds.maxY - paddleSize.height * 3)
     }
     
     private func clearBricks() {
