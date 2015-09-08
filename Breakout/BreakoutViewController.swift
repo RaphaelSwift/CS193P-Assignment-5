@@ -137,6 +137,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let BrickBorderWidth: CGFloat = 1
         static let DefaultOccurenceOfSpecialBricks = 0.15
         static let BackgroundImage = "NebulaBackground"
+        static let PaddleColor = UIColor(red: 0.00, green: 0.15, blue: 0.47, alpha: 0.7)
     }
 
     private struct PathNames {
@@ -249,6 +250,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         if paddleOrigin != nil {
             let paddle = CGRect(origin: paddleOrigin!, size: paddleSize)
             let paddleBezierPath = UIBezierPath(roundedRect: paddle, cornerRadius: 5)
+            gameView.fillColor = Constants.PaddleColor
             gameView.setBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
             breakoutBehavior.addBezierPath(paddleBezierPath, named: PathNames.PaddleBarrier)
         }
