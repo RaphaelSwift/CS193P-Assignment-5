@@ -34,7 +34,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private var bricks = [String:UIView]()
+    private var bricks = [String:Brick]()
     
     private var bricksRemaining: Int? {
         didSet {
@@ -109,13 +109,14 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         initGameLayout()
-        
     }
     
     private struct Constants {
         static let BallColor = UIColor.redColor()
         static let BallCornerRadius: CGFloat = 5.0
         static let BrickColor = UIColor.greenColor()
+        static let SpecialBrickColor = UIColor.magentaColor()
+        static let SpecialBallColor = UIColor.magentaColor()
     }
 
     private struct PathNames {
@@ -124,6 +125,15 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let GameRightBarrier = "Game Right Barrier"
         static let GameTopBarrier = "Game Top Barrier"
         static let BrickBarrier = "Brick Barrier"
+    }
+    private struct Brick {
+        var view: UIView
+        var type: BrickType
+        
+        enum BrickType {
+            case Normal
+            case Special
+        }
     }
     
     @IBAction func pushBall(sender: UITapGestureRecognizer) {
@@ -178,14 +188,31 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     //MARK: - UICollisionBehaviorDelegate
     func collisionBehavior(behavior: UICollisionBehavior, beganContactForItem item: UIDynamicItem, withBoundaryIdentifier identifier: NSCopying, atPoint p: CGPoint) {
         
-        // Remove brick boundary on collision
+        // Remove brick on collision
         if let identifier = identifier as? String {
             if identifier.hasPrefix(PathNames.BrickBarrier) {
+                let brick = bricks.removeValueForKey(identifier)!
                 breakoutBehavior.removeBezierPath(named: identifier)
-                animateBrickDisappearance(bricks.removeValueForKey(identifier)!)
+                animateBrickDisappearance(brick.view)
                 bricksRemaining!--
+                
+                if bricksRemaining != 0 && brick.type == .Special {
+                    let ballOrigin = (item as! UIView).center
+                    let ball = createBall(atOrigin: ballOrigin, ofColor: Constants.SpecialBallColor) // On collision, for special brick, create a new ball
+                    ballView! += [ball]
+                    breakoutBehavior.addBall(ball)
+                    breakoutBehavior.pushBall(ball)
+                }
             }
         }
+    }
+
+    private func createBall (atOrigin origin: CGPoint, ofColor color: UIColor) -> UIView {
+        let ballFrame = CGRect(origin: origin, size: ballSize)
+        let ballViewFrame = UIView(frame: ballFrame)
+        ballViewFrame.layer.cornerRadius = Constants.BallCornerRadius
+        ballViewFrame.backgroundColor = color
+        return ballViewFrame
     }
 
     // Draw the paddle
@@ -270,11 +297,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             
             for _ in 0..<numberOfBalls {
                 let ballOrigin = CGPoint(x: (paddleOrigin.x + paddleSize.width / 2 - ballSize.width / 2) , y: (paddleOrigin.y - ballSize.height))
-                let ballFrame = CGRect(origin: ballOrigin, size: ballSize)
-                let ballViewFrame = UIView(frame: ballFrame)
-                ballViewFrame.layer.cornerRadius = Constants.BallCornerRadius
-                ballViewFrame.backgroundColor = Constants.BallColor
-                balls.append(ballViewFrame)
+                let ball = createBall(atOrigin: ballOrigin, ofColor: Constants.BallColor)
+                balls.append(ball)
                 
             }
             return balls
@@ -292,7 +316,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private func clearBricks() {
         for (name,brick) in bricks {
-            brick.removeFromSuperview()
+            brick.view.removeFromSuperview()
             bricks.removeValueForKey(name)
             breakoutBehavior.removeBezierPath(named: name)
         }
@@ -311,7 +335,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         var bricksToReplace = [String]()
         
         for (name,brick) in bricks {
-            brick.removeFromSuperview()
+            brick.view.removeFromSuperview()
             bricks.removeValueForKey(name)
             bricksToReplace.append(name)
         }
@@ -343,9 +367,9 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 breakoutBehavior.addBezierPath(brickPath, named: name)
                 
                 // Add the brick as a subview to the reference view
-                brickView.backgroundColor = UIColor.greenColor()
+                brickView.backgroundColor = Constants.BrickColor
                 gameView.addSubview(brickView)
-                bricks[name] = brickView
+                bricks[name] = randomBrick(brickView, brickIndex: index)
                 
             } else {
                 
@@ -357,9 +381,21 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                     // Add the brick as a subview to the reference view
                     brickView.backgroundColor = Constants.BrickColor
                     gameView.addSubview(brickView)
-                    bricks[name] = brickView
+                    bricks[name] = randomBrick(brickView, brickIndex: index)
                 }
             }
+        }
+    }
+    
+    private func randomBrick (brickView: UIView, brickIndex: Int) -> Brick {
+        if brickIndex % 6 == 0 {
+            brickView.backgroundColor = Constants.SpecialBrickColor
+            brickView.layer.borderWidth = 2
+            return Brick(view: brickView, type: .Special)
+        } else {
+            brickView.backgroundColor = Constants.BrickColor
+            brickView.layer.borderWidth = 1
+            return Brick(view: brickView, type: .Normal)
         }
     }
     
