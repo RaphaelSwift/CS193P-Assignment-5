@@ -129,11 +129,11 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     private struct Constants {
         static let BallColor = UIColor.redColor()
         static let BallCornerRadius: CGFloat = 5.0
-        static let BrickColor = UIColor.greenColor()
-        static let SpecialBrickColor = UIColor.cyanColor()
+        static let BrickColor = UIColor(red:0.00, green:1.00, blue:0.00, alpha:0.8)
+        static let SpecialBrickColor = UIColor(red:0.00, green:0.00, blue:1.00, alpha:0.8)
         static let SpecialBallColor = UIColor.blueColor()
-        static let BrickFadingColor = UIColor.darkGrayColor()
-        static let BrickBorderColor = UIColor.darkGrayColor()
+        static let BrickFadingColor = UIColor(red:0.00, green:0.85, blue:1.00, alpha:0.5)
+        static let BrickBorderColor = UIColor.blackColor()
         static let BrickBorderWidth: CGFloat = 1
         static let DefaultOccurenceOfSpecialBricks = 0.15
         static let BackgroundImage = "NebulaBackground"
