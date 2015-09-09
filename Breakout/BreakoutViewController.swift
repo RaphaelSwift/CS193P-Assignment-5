@@ -107,12 +107,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         
         breakoutBehavior.delegate = self
         animator.addBehavior(breakoutBehavior)
-        
-        for childBehavior in breakoutBehavior.childBehaviors {
-            if let collisionChildBehavior = childBehavior as? UICollisionBehavior {
-                    collisionChildBehavior.collisionDelegate = self
-            }
-        }
+        breakoutBehavior.collider.collisionDelegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -123,13 +118,42 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(true)
+        let manager = AppDelegate.Motion.Manager
+        
+        if manager.accelerometerAvailable {
+            manager.startAccelerometerUpdatesToQueue(NSOperationQueue.mainQueue()) { (data, error) -> Void in
+
+                var vector: CGVector?
+                
+                let orientation = UIApplication.sharedApplication().statusBarOrientation
+                
+                if orientation == UIInterfaceOrientation.Portrait {
+                    vector = CGVector(dx: data.acceleration.x, dy: -data.acceleration.y)
+                }
+
+                if orientation == UIInterfaceOrientation.LandscapeRight {
+                    vector = CGVector(dx: -data.acceleration.y, dy: -data.acceleration.x)
+                }
+                if orientation == UIInterfaceOrientation.LandscapeLeft {
+                    vector = CGVector(dx: data.acceleration.y, dy: data.acceleration.x)
+                }
+                if let vector = vector {
+                   self.breakoutBehavior.gravity.gravityDirection = vector
+                }
+            }
+        }
+    }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
         initGameLayout()
     }
     
     override func viewWillDisappear(animated: Bool) {
+        AppDelegate.Motion.Manager.stopAccelerometerUpdates()
         if gameIsActive {
             breakoutBehavior.stopBalls()
         }

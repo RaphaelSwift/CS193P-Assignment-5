@@ -91,6 +91,7 @@
 				F6EAB9F71B9DCF8B008E445E /* UserDefaults.swift */,
 				F6EAB9F91B9DD719008E445E /* SettingsTableViewController.swift */,
 				F6E820391B941F85003E599E /* Main.storyboard */,
+				F6E820351B941F85003E599E /* AppDelegate.swift */,
 				F6E820331B941F85003E599E /* Supporting Files */,
 			);
 			path = Breakout;
@@ -101,7 +102,6 @@
 			children = (
 				F6E8203E1B941F85003E599E /* LaunchScreen.xib */,
 				F6E8203C1B941F85003E599E /* Images.xcassets */,
-				F6E820351B941F85003E599E /* AppDelegate.swift */,
 				F6E820341B941F85003E599E /* Info.plist */,
 			);
 			name = "Supporting Files";

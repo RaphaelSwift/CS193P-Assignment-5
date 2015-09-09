@@ -29,7 +29,7 @@ class BreakoutBehavior: UIDynamicBehavior
         return gravity
         }()
     
-    private lazy var collider: UICollisionBehavior =  {
+    lazy var collider: UICollisionBehavior =  {
         let collider = UICollisionBehavior()
         collider.collisionMode = UICollisionBehaviorMode.Boundaries
         //Remove the ball when it leaves the game's bounds
