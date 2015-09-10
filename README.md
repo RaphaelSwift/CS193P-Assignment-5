@@ -3,8 +3,8 @@
 ###### Concepts:
 *CoreMotion | UIDynamicAnimator | UICollisionBehavior | UIDynamicItemBehavior | UIPushBehavior
 UIGravityBehavior | UIView animation (i.e. transitionWithView and/or animateWithDuration) |
-Adding UIViews in code (rather than storyboard) | Gestures | NSUserDefaults
-Closure memory cycle avoidance | UIAlertController | Static UITableView | UISwitch
+Adding UIViews in code (rather than storyboard) | Gestures | NSUserDefaults |
+Closure memory cycle avoidance | UIAlertController | Static UITableView | UISwitch |
 UIStepper | UISlider | UISegmentedControl*
 
 Gameplay | Settings
