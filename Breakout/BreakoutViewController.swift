@@ -61,8 +61,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     }
     
     private var brickSize: CGSize {
-        let brickWidth = gameView.frame.width / CGFloat(bricksPerRow)
-        let brickHeight = brickWidth / 4
+        let brickWidth = gameView.bounds.width / CGFloat(bricksPerRow)
+        let brickHeight = gameView.bounds.height / 20
         return CGSize(width: brickWidth, height: brickHeight)
     }
     
@@ -81,7 +81,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private let ballSize = CGSize(width: 12, height: 12)
+    private let ballSize = CGSize(width: 13, height: 13)
     
     private var ballView: [UIView]? {
         didSet {
@@ -123,24 +123,31 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         let manager = AppDelegate.Motion.Manager
         
         if manager.accelerometerAvailable {
-            manager.startAccelerometerUpdatesToQueue(NSOperationQueue.mainQueue()) { (data, error) -> Void in
-
-                var vector: CGVector?
+            manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue()) { (data, error) -> Void in
+                
+                
+                var gravity: CGVector?
                 
                 let orientation = UIApplication.sharedApplication().statusBarOrientation
                 
                 if orientation == UIInterfaceOrientation.Portrait {
-                    vector = CGVector(dx: data.acceleration.x, dy: -data.acceleration.y)
+                    gravity = CGVector(dx: data.gravity.x, dy: -data.gravity.y)
                 }
-
+                
                 if orientation == UIInterfaceOrientation.LandscapeRight {
-                    vector = CGVector(dx: -data.acceleration.y, dy: -data.acceleration.x)
+                    gravity = CGVector(dx: -data.gravity.y, dy: -data.gravity.x)
                 }
                 if orientation == UIInterfaceOrientation.LandscapeLeft {
-                    vector = CGVector(dx: data.acceleration.y, dy: data.acceleration.x)
+                    gravity = CGVector(dx: data.gravity.y, dy: data.gravity.x)
                 }
-                if let vector = vector {
-                   self.breakoutBehavior.gravity.gravityDirection = vector
+                if let gravity = gravity {
+                    if self.gameIsActive {
+                        let newPaddleOriginX = min(max(self.paddleOrigin!.x + gravity.dx * Constants.PaddleSensitivity, self.gameView.bounds.minX), self.gameView.bounds.maxX - self.paddleSize.width)
+                        if newPaddleOriginX != self.paddleOrigin!.x {
+                            self.paddleOrigin?.x = newPaddleOriginX
+                        }
+                        self.breakoutBehavior.gravity.gravityDirection = gravity
+                    }
                 }
             }
         }
@@ -153,7 +160,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     }
     
     override func viewWillDisappear(animated: Bool) {
-        AppDelegate.Motion.Manager.stopAccelerometerUpdates()
+        AppDelegate.Motion.Manager.stopDeviceMotionUpdates()
         if gameIsActive {
             breakoutBehavior.stopBalls()
         }
@@ -170,6 +177,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         static let BrickBorderWidth: CGFloat = 1
         static let DefaultOccurenceOfSpecialBricks = 0.15
         static let PaddleColor = UIColor(red: 0.00, green: 0.15, blue: 0.47, alpha: 0.7)
+        static let PaddleSensitivity: CGFloat = 20 // the higher, the more sensitive
     }
 
     private struct PathNames {
@@ -469,19 +477,14 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private func createGameBounds() {
         
-        let gameBoundLeftBezierPath = UIBezierPath()
-        gameBoundLeftBezierPath.moveToPoint(CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.maxY))
-        gameBoundLeftBezierPath.addLineToPoint(CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.origin.y))
-        breakoutBehavior.addBezierPath(gameBoundLeftBezierPath, named: PathNames.GameLeftBarrier)
+        let bottomLeftCorner = CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.maxY)
+        let topLeftCorner = CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.origin.y)
+        let topRightCorner = CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.origin.y)
+        let bottomRightCorner = CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.maxY)
         
-        let gameBoundTopBezierPath = UIBezierPath()
-        gameBoundTopBezierPath.moveToPoint(CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.origin.y))
-        gameBoundTopBezierPath.addLineToPoint(CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.origin.y))
-        breakoutBehavior.addBezierPath(gameBoundTopBezierPath, named: PathNames.GameTopBarrier)
-        
-        let gameBoundRightBezierPath = UIBezierPath()
-        gameBoundRightBezierPath.moveToPoint(CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.origin.y))
-        gameBoundRightBezierPath.addLineToPoint(CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.maxY))
-        breakoutBehavior.addBezierPath(gameBoundRightBezierPath, named: PathNames.GameRightBarrier)
+        breakoutBehavior.createBoundarySegment(named: PathNames.GameLeftBarrier, fromPoint: bottomLeftCorner, toPoint: topLeftCorner)
+        breakoutBehavior.createBoundarySegment(named: PathNames.GameTopBarrier, fromPoint: topLeftCorner, toPoint: topRightCorner)
+        breakoutBehavior.createBoundarySegment(named: PathNames.GameRightBarrier, fromPoint: topRightCorner, toPoint: bottomRightCorner)
+
     }
 }

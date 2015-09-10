@@ -32,6 +32,7 @@ class BreakoutBehavior: UIDynamicBehavior
     lazy var collider: UICollisionBehavior =  {
         let collider = UICollisionBehavior()
         collider.collisionMode = UICollisionBehaviorMode.Boundaries
+
         //Remove the ball when it leaves the game's bounds
         collider.action = {
             for item in collider.items {
@@ -48,7 +49,7 @@ class BreakoutBehavior: UIDynamicBehavior
     private lazy var ballBehavior: UIDynamicItemBehavior = {
         let lazilyCreatedBallBehavior = UIDynamicItemBehavior()
         lazilyCreatedBallBehavior.elasticity = self.ballBounciness
-        lazilyCreatedBallBehavior.allowsRotation = false
+        lazilyCreatedBallBehavior.allowsRotation = true
         lazilyCreatedBallBehavior.resistance = 0.0
         lazilyCreatedBallBehavior.friction = 0.0
         
@@ -75,13 +76,18 @@ class BreakoutBehavior: UIDynamicBehavior
         addChildBehavior(gravity)
     }
     
+    func addBezierPath(path:UIBezierPath,named name: String) {
+        removeBezierPath(named: name)
+        collider.addBoundaryWithIdentifier(name, forPath: path)
+    }
+    
     func removeBezierPath(named name: String) {
         collider.removeBoundaryWithIdentifier(name)
     }
     
-    func addBezierPath(path:UIBezierPath,named name: String) {
-        removeBezierPath(named: name)
-        collider.addBoundaryWithIdentifier(name, forPath: path)
+    func createBoundarySegment(named name: String, fromPoint: CGPoint, toPoint: CGPoint) {
+        collider.removeBoundaryWithIdentifier(name)
+        collider.addBoundaryWithIdentifier(name, fromPoint: fromPoint, toPoint: toPoint)
     }
     
     func addBrick(brick: UIView) {
@@ -102,8 +108,7 @@ class BreakoutBehavior: UIDynamicBehavior
             
             // Remove it from its animator once it is done acting on its items
             pusher.action = { [unowned pusher] in // mark as unowned to avoid memory cycle
-                pusher.removeItem(ball)
-                pusher.dynamicAnimator!.removeBehavior(pusher)
+                self.removeChildBehavior(pusher)
             }
             addChildBehavior(pusher)
         }
@@ -120,6 +125,7 @@ class BreakoutBehavior: UIDynamicBehavior
         
         // add dynamics behavior to the ball
         ballBehavior.addItem(ball)
+        
     }
     
     func removeBall(ball:UIView) {
@@ -145,7 +151,6 @@ class BreakoutBehavior: UIDynamicBehavior
     func stopBalls() {
         
         ballsVelocity.removeAll()
-        
         for ball in ballBehavior.items {
             if let ball = ball as? UIView {
                 let velocity = ballBehavior.linearVelocityForItem(ball)
