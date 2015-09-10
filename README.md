@@ -2,8 +2,8 @@
 ### Assignment 5 of Stanford CS193P (Winter 2015)
 ###### Concepts:
 *CoreMotion | UIDynamicAnimator | UICollisionBehavior | UIDynamicItemBehavior | UIPushBehavior
-UIGravityBehavior | UIView animation (i.e. transitionWithView and/or animateWithDuration)
-NSUserDefaults | Adding UIViews in code (rather than storyboard) | Gestures
+UIGravityBehavior | UIView animation (i.e. transitionWithView and/or animateWithDuration)      
+Adding UIViews in code (rather than storyboard) | Gestures | NSUserDefaults
 Closure memory cycle avoidance | UIAlertController | Static UITableView | UISwitch
 UIStepper | UISlider | UISegmentedControl*
 
