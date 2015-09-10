@@ -10,10 +10,7 @@ import UIKit
 
 class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICollisionBehaviorDelegate, BreakoutBehaviorDelegate
 {
-
     @IBOutlet weak var gameView: BezierPathsView!
-    
-    private let userDefaults = UserDefaults()
     
     private lazy var animator: UIDynamicAnimator = {
         let lazilyCreatedAnimator = UIDynamicAnimator(referenceView: self.gameView)
@@ -48,8 +45,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private var bricksPerRow = 5
-    
     private var numberOfBricks: Int {
         return userDefaults.fetchNumberOfBricks() ?? 5
     }
@@ -61,17 +56,16 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     }
     
     private var brickSize: CGSize {
-        let brickWidth = gameView.bounds.width / CGFloat(bricksPerRow)
-        let brickHeight = gameView.bounds.height / 20
+        let brickWidth = gameView.bounds.width / CGFloat(Constants.BricksPerRow)
+        let brickHeight = gameView.bounds.height / 5 / CGFloat(Constants.BricksPerRow)
         return CGSize(width: brickWidth, height: brickHeight)
     }
     
-    private var specialBricks: Bool {
-        return userDefaults.fetchSpecialBrickPreference()
-    }
+    private var specialBricks: Bool { return userDefaults.fetchSpecialBrickPreference() }
     
     private let breakoutBehavior = BreakoutBehavior()
     private let settings = SettingsTableViewController()
+    private let userDefaults = UserDefaults()
     
     private var gameIsActive: Bool = false {
         didSet {
@@ -80,8 +74,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             }
         }
     }
-    
-    private let ballSize = CGSize(width: 13, height: 13)
     
     private var ballView: [UIView]? {
         didSet {
@@ -93,18 +85,86 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private var gameScore: Int = 0 
+    private var gameScore: Int = 0
+    
+    //MARK: - Structs
+    
+    private struct Brick {
+        
+        var view: UIView
+        var type: BrickType
+        
+        enum BrickType {
+            case Normal
+            case Special
+        }
+    }
+    
+    private struct Constants {
+        
+        static let BallColor = UIColor.redColor()
+        static let BallCornerRadius: CGFloat = 5.0
+        static let BallSpecialColor = UIColor.blueColor()
+        static let BallSize = CGSize(width: 13, height: 13)
+        
+        static let BrickBorderColor = UIColor.blackColor()
+        static let BrickBorderWidth: CGFloat = 1
+        static let BrickColor = UIColor(red:0.11, green:0.81, blue:0.15, alpha:0.5)
+        static let BrickFadingColor = UIColor(red:0.00, green:0.85, blue:1.00, alpha:0.5)
+        static let BricksPerRow = 5
+        static let BrickSpecialColor = UIColor(red:0.00, green:0.00, blue:1.00, alpha:0.5)
+        
+        static let DefaultOccurenceOfSpecialBricks = 0.15 // percentage of special bricks
+        
+        static let PaddleColor = UIColor(red: 0.00, green: 0.15, blue: 0.47, alpha: 0.7)
+        static let PaddleSensitivity: CGFloat = 20 // the higher, the more sensitive
+    }
+    
+    private struct PathNames {
+        static let BrickBarrier = "Brick Barrier"
+        static let GameLeftBarrier = "Game Left Barrier"
+        static let GameRightBarrier = "Game Right Barrier"
+        static let GameTopBarrier = "Game Top Barrier"
+        static let PaddleBarrier = "Paddle Barrier"
+    }
+    
     private struct Score {
         static let PointPerBrickHit = 1
         static let PointForCompletingGame = 50
         static let PointForEachRemainingBall = 10
     }
-    
 
+    
+    //MARK: - Lifecyle
+    
+    @IBAction func pushBall(sender: UITapGestureRecognizer) {
+        if ballView != nil {
+            for ball in ballView! {
+                breakoutBehavior.pushBall(ball)
+            }
+            gameIsActive = true
+        }
+    }
+    
+    @IBAction func movePaddle(gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .Changed:
+            if gameIsActive { // can only move the the paddle if the game is active (ie. ball is active)
+                let translation = gesture.translationInView(gameView)
+                let paddleMove = translation.x
+                if paddleMove != 0 {
+                    // ensure that the paddle remains within the game's bound
+                    let newPaddleOrigin = min(max(paddleOrigin!.x + paddleMove, gameView.bounds.minX), gameView.bounds.maxX - paddleSize.width)
+                    paddleOrigin?.x = newPaddleOrigin
+                    gesture.setTranslation(CGPointZero, inView: gameView) // set to 0 for incremental change
+                }
+            }
+        default: break
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         breakoutBehavior.delegate = self
         animator.addBehavior(breakoutBehavior)
         breakoutBehavior.collider.collisionDelegate = self
@@ -125,7 +185,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         if manager.accelerometerAvailable {
             manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue()) { (data, error) -> Void in
                 
-                
                 var gravity: CGVector?
                 
                 let orientation = UIApplication.sharedApplication().statusBarOrientation
@@ -133,7 +192,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 if orientation == UIInterfaceOrientation.Portrait {
                     gravity = CGVector(dx: data.gravity.x, dy: -data.gravity.y)
                 }
-                
                 if orientation == UIInterfaceOrientation.LandscapeRight {
                     gravity = CGVector(dx: -data.gravity.y, dy: -data.gravity.x)
                 }
@@ -144,9 +202,9 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                     if self.gameIsActive {
                         let newPaddleOriginX = min(max(self.paddleOrigin!.x + gravity.dx * Constants.PaddleSensitivity, self.gameView.bounds.minX), self.gameView.bounds.maxX - self.paddleSize.width)
                         if newPaddleOriginX != self.paddleOrigin!.x {
-                            self.paddleOrigin?.x = newPaddleOriginX
+                            self.paddleOrigin?.x = newPaddleOriginX // move the paddle according to device real life gravity
                         }
-                        self.breakoutBehavior.gravity.gravityDirection = gravity
+                        self.breakoutBehavior.gravity.gravityDirection = gravity // links real life gravity to in game gravity
                     }
                 }
             }
@@ -155,72 +213,57 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
         initGameLayout()
+    }
+    
+    private func initGameLayout() {
+        
+        placePaddleAtInitialPosition()
+        
+        if !gameIsActive {
+            if ballView != nil {
+                for ball in ballView! {
+                    breakoutBehavior.removeBall(ball)
+                }
+            }
+            ballView = nil
+            ballView = createAndPlaceBallAtInitialPosition()
+            clearBricks()
+            gameScore = 0
+            
+        }
+        
+        if gameIsActive {
+            if ballView != nil {
+                for ball in ballView! {
+                    if !CGRectIntersectsRect(ball.frame, gameView.bounds) {
+                        ball.center = CGPoint(x: gameView.bounds.midX, y: gameView.bounds.midY)
+                        animator.updateItemUsingCurrentState(ball)
+                    }
+                }
+            }
+        }
+        createBricks()
+        createGameBounds()
+    }
+    
+    private func createGameBounds() {
+        
+        let bottomLeftCorner = CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.maxY)
+        let topLeftCorner = CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.origin.y)
+        let topRightCorner = CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.origin.y)
+        let bottomRightCorner = CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.maxY)
+        
+        breakoutBehavior.createBoundarySegment(named: PathNames.GameLeftBarrier, fromPoint: bottomLeftCorner, toPoint: topLeftCorner)
+        breakoutBehavior.createBoundarySegment(named: PathNames.GameTopBarrier, fromPoint: topLeftCorner, toPoint: topRightCorner)
+        breakoutBehavior.createBoundarySegment(named: PathNames.GameRightBarrier, fromPoint: topRightCorner, toPoint: bottomRightCorner)
+        
     }
     
     override func viewWillDisappear(animated: Bool) {
         AppDelegate.Motion.Manager.stopDeviceMotionUpdates()
         if gameIsActive {
             breakoutBehavior.stopBalls()
-        }
-    }
-    
-    private struct Constants {
-        static let BallColor = UIColor.redColor()
-        static let BallCornerRadius: CGFloat = 5.0
-        static let BrickColor = UIColor(red:0.11, green:0.81, blue:0.15, alpha:0.5)
-        static let SpecialBrickColor = UIColor(red:0.00, green:0.00, blue:1.00, alpha:0.5)
-        static let SpecialBallColor = UIColor.blueColor()
-        static let BrickFadingColor = UIColor(red:0.00, green:0.85, blue:1.00, alpha:0.5)
-        static let BrickBorderColor = UIColor.blackColor()
-        static let BrickBorderWidth: CGFloat = 1
-        static let DefaultOccurenceOfSpecialBricks = 0.15
-        static let PaddleColor = UIColor(red: 0.00, green: 0.15, blue: 0.47, alpha: 0.7)
-        static let PaddleSensitivity: CGFloat = 20 // the higher, the more sensitive
-    }
-
-    private struct PathNames {
-        static let PaddleBarrier = "Paddle Barrier"
-        static let GameLeftBarrier = "Game Left Barrier"
-        static let GameRightBarrier = "Game Right Barrier"
-        static let GameTopBarrier = "Game Top Barrier"
-        static let BrickBarrier = "Brick Barrier"
-    }
-    private struct Brick {
-        var view: UIView
-        var type: BrickType
-        
-        enum BrickType {
-            case Normal
-            case Special
-        }
-    }
-    
-    @IBAction func pushBall(sender: UITapGestureRecognizer) {
-        if ballView != nil {
-            for ball in ballView! {
-                breakoutBehavior.pushBall(ball)
-            }
-            gameIsActive = true
-        }
-    }
-    
-    // Move the paddle by panning on the screen
-    @IBAction func movePaddle(gesture: UIPanGestureRecognizer) {
-        switch gesture.state {
-        case .Changed:
-            if gameIsActive { // can only move the the paddle if the game is active (ie. ball is active)
-                let translation = gesture.translationInView(gameView)
-                let paddleMove = translation.x
-                if paddleMove != 0 {
-                    // ensure that the paddle remains within the game's bound
-                    let newPaddleOrigin = min(max(paddleOrigin!.x + paddleMove, gameView.bounds.minX), gameView.bounds.maxX - paddleSize.width)
-                    paddleOrigin?.x = newPaddleOrigin
-                    gesture.setTranslation(CGPointZero, inView: gameView) // set to 0 for incremental change
-                }
-            }
-        default: break
         }
     }
     
@@ -257,7 +300,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 
                 if bricksRemaining != 0 && brick.type == .Special {
                     let ballOrigin = (item as! UIView).center
-                    let ball = createBall(atOrigin: ballOrigin, ofColor: Constants.SpecialBallColor) // On collision, for special brick, create a new ball
+                    let ball = createBall(atOrigin: ballOrigin, ofColor: Constants.BallSpecialColor) // On collision, for special brick, create a new ball
                     ballView! += [ball]
                     breakoutBehavior.addBall(ball)
                     breakoutBehavior.pushBall(ball)
@@ -265,16 +308,36 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             }
         }
     }
-
+    
+    //MARK: - Ball
+    
+    private func createAndPlaceBallAtInitialPosition() -> [UIView]? {
+        
+        //Add the ball as a UIView, position it on the paddle , in the middle
+        if let paddleOrigin = paddleOrigin {
+            var balls = [UIView]()
+            for _ in 0..<numberOfBalls {
+                let ballOrigin = CGPoint(x: (paddleOrigin.x + paddleSize.width / 2 - Constants.BallSize.width / 2) , y: (paddleOrigin.y - Constants.BallSize.height))
+                let ball = createBall(atOrigin: ballOrigin, ofColor: Constants.BallColor)
+                balls.append(ball)
+            }
+            return balls
+        } else {
+            return nil
+        }
+    }
+    
     private func createBall (atOrigin origin: CGPoint, ofColor color: UIColor) -> UIView {
-        let ballFrame = CGRect(origin: origin, size: ballSize)
+        let ballFrame = CGRect(origin: origin, size: Constants.BallSize)
         let ballViewFrame = UIView(frame: ballFrame)
         ballViewFrame.layer.cornerRadius = Constants.BallCornerRadius
         ballViewFrame.backgroundColor = color
         return ballViewFrame
     }
-
-    // Draw the paddle
+    
+    
+    //MARK: - Paddle
+    
     private func setAndDrawPaddle() {
         if paddleOrigin != nil {
             let paddle = CGRect(origin: paddleOrigin!, size: paddleSize)
@@ -285,108 +348,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    // Animates the disappearance of the brick
-    private func animateBrickDisappearance(view:UIView) {
-        UIView.transitionWithView(view,
-            duration: 0.3,
-            options: UIViewAnimationOptions.TransitionFlipFromBottom,
-            animations: {
-                view.backgroundColor = Constants.BrickFadingColor
-                view.layer.borderWidth = 0},
-            completion: {if $0 {self.fadeAnimation(view)}})
-    }
-    
-    // Fades the view and remove it from superview when it completes
-    private func fadeAnimation(view:UIView) {
-        if view.alpha == 1.0 {
-            UIView.animateWithDuration(0.2,
-                delay: 0.0,
-                options: UIViewAnimationOptions.CurveEaseInOut,
-                animations: {view.alpha = 0.0},
-                completion: {
-                    if $0 {
-                        self.breakoutBehavior.removeBrick(view) }})
-        }
-    }
-    
-    private func gameOverAlert() {
-        let alert = UIAlertController (title: "Game Over", message: "Score : \(gameScore)", preferredStyle: UIAlertControllerStyle.Alert)
-        let action = UIAlertAction(title: "Replay", style: UIAlertActionStyle.Default) { (action) -> Void in
-            self.clearBricks()
-            self.initGameLayout()
-        }
-        
-        alert.addAction(action)
-        presentViewController(alert, animated: true, completion: nil)
-    }
-    
-    // Initiliaze the game layout etc.
-    private func initGameLayout() {
-
-        
-        placePaddleAtInitialPosition()
-        
-        if !gameIsActive {
-            if ballView != nil {
-                for ball in ballView! {
-                    breakoutBehavior.removeBall(ball)
-                }
-            }
-            ballView = nil
-            ballView = createAndPlaceBallAtInitialPosition()
-            clearBricks()
-            gameScore = 0
-
-        }
-        
-        if gameIsActive {
-            if ballView != nil {
-                for ball in ballView! {
-                    if !CGRectIntersectsRect(ball.frame, gameView.bounds) {
-                        ball.center = CGPoint(x: gameView.bounds.midX, y: gameView.bounds.midY)
-                        animator.updateItemUsingCurrentState(ball)
-                    }
-                }
-            }
-        }
-        
-        createBricks()
-        createGameBounds()
-    }
-    
-    private func createAndPlaceBallAtInitialPosition() -> [UIView]? {
-        
-        //Add the ball as a UIView, position it on the paddle , in the middle
-        if let paddleOrigin = paddleOrigin {
-            
-            var balls = [UIView]()
-            
-            for _ in 0..<numberOfBalls {
-                let ballOrigin = CGPoint(x: (paddleOrigin.x + paddleSize.width / 2 - ballSize.width / 2) , y: (paddleOrigin.y - ballSize.height))
-                let ball = createBall(atOrigin: ballOrigin, ofColor: Constants.BallColor)
-                balls.append(ball)
-                
-            }
-            return balls
-
-        } else {
-            return nil
-        }
-    }
-    
-    
-    // Place the paddle at bottom of screen in the middle
     private func placePaddleAtInitialPosition() {
+        // Place the paddle at bottom of screen in the middle
         paddleOrigin = CGPoint(x: gameView.bounds.midX  - paddleSize.width / 2, y: gameView.bounds.maxY - paddleSize.height * 3)
     }
+
     
-    private func clearBricks() {
-        for (name,brick) in bricks {
-            brick.view.removeFromSuperview()
-            bricks.removeValueForKey(name)
-            breakoutBehavior.removeBezierPath(named: name)
-        }
-    }
+    //MARK: - Brick
     
     private func createBricks() {
         
@@ -397,7 +365,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         } else {
             numberOfBricksTemp = numberOfBricksForCurrentGame
         }
-
+        
         var bricksToReplace = [String]()
         
         for (name,brick) in bricks {
@@ -414,7 +382,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             brickFrame.origin.y += brickFrame.size.height
             brickFrame.origin.x = 0
             
-            for _ in 0 ..< bricksPerRow {
+            for _ in 0 ..< Constants.BricksPerRow {
                 if bricksToAdd.count < numberOfBricksTemp {
                     bricksToAdd.append(brickFrame)
                     brickFrame.origin.x += brickFrame.size.width
@@ -440,7 +408,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             } else {
                 
                 if contains(bricksToReplace, name) {
-
+                    
                     // Add the brick as a boundary to the dynamic collision behavior
                     breakoutBehavior.addBezierPath(brickPath, named: name)
                     
@@ -453,10 +421,18 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    private func clearBricks() {
+        for (name,brick) in bricks {
+            brick.view.removeFromSuperview()
+            bricks.removeValueForKey(name)
+            breakoutBehavior.removeBezierPath(named: name)
+        }
+    }
+    
     private func randomBrick (brickView: UIView, brickIndex: Int) -> Brick {
         if specialBricks {
             if brickIndex %  Int(1 / Constants.DefaultOccurenceOfSpecialBricks) == 0 {
-                brickView.backgroundColor = Constants.SpecialBrickColor
+                brickView.backgroundColor = Constants.BrickSpecialColor
                 brickView.layer.borderColor = Constants.BrickBorderColor.CGColor
                 brickView.layer.borderWidth = Constants.BrickBorderWidth
                 return Brick(view: brickView, type: .Special)
@@ -475,16 +451,38 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         return Brick(view: brickView, type: .Normal)
     }
     
-    private func createGameBounds() {
+    //MARK: - View Animations and Alerts
+    
+    private func gameOverAlert() {
+        let alert = UIAlertController (title: "Game Over", message: "Score : \(gameScore)", preferredStyle: UIAlertControllerStyle.Alert)
+        let action = UIAlertAction(title: "Replay", style: UIAlertActionStyle.Default) { (action) -> Void in
+            self.clearBricks()
+            self.initGameLayout()
+        }
         
-        let bottomLeftCorner = CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.maxY)
-        let topLeftCorner = CGPoint(x: gameView.bounds.origin.x, y: gameView.bounds.origin.y)
-        let topRightCorner = CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.origin.y)
-        let bottomRightCorner = CGPoint(x: gameView.bounds.maxX, y: gameView.bounds.maxY)
-        
-        breakoutBehavior.createBoundarySegment(named: PathNames.GameLeftBarrier, fromPoint: bottomLeftCorner, toPoint: topLeftCorner)
-        breakoutBehavior.createBoundarySegment(named: PathNames.GameTopBarrier, fromPoint: topLeftCorner, toPoint: topRightCorner)
-        breakoutBehavior.createBoundarySegment(named: PathNames.GameRightBarrier, fromPoint: topRightCorner, toPoint: bottomRightCorner)
+        alert.addAction(action)
+        presentViewController(alert, animated: true, completion: nil)
+    }
 
+    private func animateBrickDisappearance(view:UIView) {
+        UIView.transitionWithView(view,
+            duration: 0.3,
+            options: UIViewAnimationOptions.TransitionFlipFromBottom,
+            animations: {
+                view.backgroundColor = Constants.BrickFadingColor
+                view.layer.borderWidth = 0},
+            completion: {if $0 {self.fadeAnimation(view)}})
+    }
+    
+    private func fadeAnimation(view:UIView) {
+        if view.alpha == 1.0 {
+            UIView.animateWithDuration(0.2,
+                delay: 0.0,
+                options: UIViewAnimationOptions.CurveEaseInOut,
+                animations: {view.alpha = 0.0},
+                completion: {
+                    if $0 {
+                        self.breakoutBehavior.removeBrick(view) }})
+        }
     }
 }

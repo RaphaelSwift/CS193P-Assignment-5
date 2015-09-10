@@ -19,21 +19,18 @@ class BreakoutBehavior: UIDynamicBehavior
         gravity.action = {
             for item in gravity.items {
                 if let brick = item as? UIView {
-                    if !CGRectIntersectsRect(brick.frame, self.dynamicAnimator!.referenceView!.bounds) {
+                    if !CGRectIntersectsRect(brick.frame, self.dynamicAnimator!.referenceView!.bounds) { // Remove each brick that isn't within the reference view
                         self.removeBrick(brick)
                     }
                 }
-                
             }
         }
         return gravity
-        }()
+    }()
     
     lazy var collider: UICollisionBehavior =  {
         let collider = UICollisionBehavior()
         collider.collisionMode = UICollisionBehaviorMode.Boundaries
-
-        //Remove the ball when it leaves the game's bounds
         collider.action = {
             for item in collider.items {
                 if let ball = item as? UIView {
@@ -56,21 +53,18 @@ class BreakoutBehavior: UIDynamicBehavior
         return lazilyCreatedBallBehavior
     }()
     
-    let userDefaults = UserDefaults()
+    private let userDefaults = UserDefaults()
     
     private let settingsTableViewController = SettingsTableViewController()
     
-    private var ballBounciness: CGFloat {
-        return CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0)
-        }
+    private var ballBounciness: CGFloat { return CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0) }
     
-    var ballsVelocity = [UIView:CGPoint]()
+    private var ballsVelocity = [UIView:CGPoint]()
     
     var delegate: BreakoutBehaviorDelegate?
     
     override init() {
         super.init()
-        //Add the desired behaviors
         addChildBehavior(collider)
         addChildBehavior(ballBehavior)
         addChildBehavior(gravity)
@@ -149,7 +143,6 @@ class BreakoutBehavior: UIDynamicBehavior
     
     
     func stopBalls() {
-        
         ballsVelocity.removeAll()
         for ball in ballBehavior.items {
             if let ball = ball as? UIView {

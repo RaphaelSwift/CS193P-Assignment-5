@@ -56,12 +56,7 @@ class SettingsTableViewController: UITableViewController {
     @IBAction func switchSpecialBricksPreference(sender: UISwitch) {
             userDefaults.storeSpecialBrickPreference(sender.on)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
+    
     @IBAction func changeBounciness(slider: UISlider) {
         userDefaults.storePreferedBallBounciness(slider.value)
     }
