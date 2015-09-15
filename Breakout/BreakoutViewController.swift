@@ -189,14 +189,16 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 
                 let orientation = UIApplication.sharedApplication().statusBarOrientation
                 
-                if orientation == UIInterfaceOrientation.Portrait {
-                    gravity = CGVector(dx: data.gravity.x, dy: -data.gravity.y)
-                }
-                if orientation == UIInterfaceOrientation.LandscapeRight {
-                    gravity = CGVector(dx: -data.gravity.y, dy: -data.gravity.x)
-                }
-                if orientation == UIInterfaceOrientation.LandscapeLeft {
-                    gravity = CGVector(dx: data.gravity.y, dy: data.gravity.x)
+                if let motionData = data {
+                    if orientation == UIInterfaceOrientation.Portrait {
+                        gravity = CGVector(dx: motionData.gravity.x, dy: -motionData.gravity.y)
+                    }
+                    if orientation == UIInterfaceOrientation.LandscapeRight {
+                        gravity = CGVector(dx: -motionData.gravity.y, dy: -motionData.gravity.x)
+                    }
+                    if orientation == UIInterfaceOrientation.LandscapeLeft {
+                        gravity = CGVector(dx: motionData.gravity.y, dy: motionData.gravity.x)
+                    }
                 }
                 if let gravity = gravity {
                     if self.gameIsActive {
@@ -219,7 +221,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     private func initGameLayout() {
         
         placePaddleAtInitialPosition()
-        
         if !gameIsActive {
             if ballView != nil {
                 for ball in ballView! {
@@ -269,7 +270,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     //MARK: - BreakoutBehaviorDelegate
     func didRemoveBall(ball: UIView, sender: BreakoutBehavior) {
-        if let index = find(ballView!, ball) {
+        if let index = (ballView!).indexOf(ball) {
             ballView?.removeAtIndex(index)
         }
     }
@@ -286,7 +287,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     }
     
     //MARK: - UICollisionBehaviorDelegate
-    func collisionBehavior(behavior: UICollisionBehavior, beganContactForItem item: UIDynamicItem, withBoundaryIdentifier identifier: NSCopying, atPoint p: CGPoint) {
+    func collisionBehavior(behavior: UICollisionBehavior, beganContactForItem item: UIDynamicItem, withBoundaryIdentifier identifier: NSCopying?, atPoint p: CGPoint) {
         
         // Remove brick on collision
         if let identifier = identifier as? String {
@@ -378,7 +379,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         var bricksToAdd = [CGRect]()
         var brickFrame = CGRect(x: 0, y: 0, width: brickSize.width, height: brickSize.height)
         
-        do {
+        repeat {
             brickFrame.origin.y += brickFrame.size.height
             brickFrame.origin.x = 0
             
@@ -391,7 +392,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
             
         } while bricksToAdd.count < numberOfBricksTemp
         
-        for (index,frame) in enumerate(bricksToAdd) {
+        for (index,frame) in bricksToAdd.enumerate() {
             let brickPath = UIBezierPath(rect: frame)
             let brickView = UIView(frame: frame)
             let name = "\(PathNames.BrickBarrier)\(index)"
@@ -407,7 +408,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 
             } else {
                 
-                if contains(bricksToReplace, name) {
+                if bricksToReplace.contains(name) {
                     
                     // Add the brick as a boundary to the dynamic collision behavior
                     breakoutBehavior.addBezierPath(brickPath, named: name)

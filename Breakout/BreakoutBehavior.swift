@@ -96,7 +96,7 @@ class BreakoutBehavior: UIDynamicBehavior
     
     //Push the ball in a random direction
     func pushBall(ball:UIView) {
-        if let pusher = UIPushBehavior(items: [ball], mode: UIPushBehaviorMode.Instantaneous) {
+        let pusher = UIPushBehavior(items: [ball], mode: UIPushBehaviorMode.Instantaneous)
             pusher.angle = CGFloat.randomRadian()
             pusher.magnitude = 0.05
             
@@ -105,7 +105,6 @@ class BreakoutBehavior: UIDynamicBehavior
                 self.removeChildBehavior(pusher)
             }
             addChildBehavior(pusher)
-        }
     }
    
     
