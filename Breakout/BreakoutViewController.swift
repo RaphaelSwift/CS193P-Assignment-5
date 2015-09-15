@@ -61,6 +61,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         return CGSize(width: brickWidth, height: brickHeight)
     }
     
+    private var lastGameViewBounds: CGRect?
+    
     private var specialBricks: Bool { return userDefaults.fetchSpecialBrickPreference() }
     
     private let breakoutBehavior = BreakoutBehavior()
@@ -213,6 +215,10 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    override func viewWillLayoutSubviews() {
+        lastGameViewBounds = gameView.bounds
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         initGameLayout()
@@ -220,7 +226,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private func initGameLayout() {
         
-        placePaddleAtInitialPosition()
+        placePaddle()
         if !gameIsActive {
             if ballView != nil {
                 for ball in ballView! {
@@ -349,11 +355,22 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private func placePaddleAtInitialPosition() {
-        // Place the paddle at bottom of screen in the middle
-        paddleOrigin = CGPoint(x: gameView.bounds.midX  - paddleSize.width / 2, y: gameView.bounds.maxY - paddleSize.height * 3)
+    private func placePaddle() {
+        
+        let centerPosition = CGPoint(x: gameView.bounds.midX  - paddleSize.width / 2, y: gameView.bounds.maxY - paddleSize.height * 3) // Bottom of screen in the middle
+            
+        if let origin = paddleOrigin {
+            if lastGameViewBounds != nil {
+                let relativePositionX = origin.x / lastGameViewBounds!.width
+                let relativePositionY = origin.y / lastGameViewBounds!.height
+                paddleOrigin = CGPoint(x: gameView.bounds.width * relativePositionX, y: gameView.bounds.height * relativePositionY)
+            } else {
+                paddleOrigin = centerPosition
+            }
+        } else {
+            paddleOrigin = centerPosition
+        }
     }
-
     
     //MARK: - Brick
     
