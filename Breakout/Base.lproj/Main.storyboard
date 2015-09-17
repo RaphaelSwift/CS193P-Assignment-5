@@ -23,8 +23,20 @@
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NfL-JC-bMq" customClass="BezierPathsView" customModule="Breakout" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i3o-AN-4gy">
+                                        <rect key="frame" x="8" y="4" width="43" height="20"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                        <color key="textColor" red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <gestureRecognizers/>
+                                <constraints>
+                                    <constraint firstItem="i3o-AN-4gy" firstAttribute="top" secondItem="NfL-JC-bMq" secondAttribute="top" constant="4" id="MpL-Oo-raV"/>
+                                    <constraint firstItem="i3o-AN-4gy" firstAttribute="leading" secondItem="NfL-JC-bMq" secondAttribute="leading" constant="8" id="sDM-hr-Wgo"/>
+                                </constraints>
                                 <connections>
                                     <outletCollection property="gestureRecognizers" destination="TR5-6P-Fb3" appends="YES" id="TKn-Ne-dXM"/>
                                     <outletCollection property="gestureRecognizers" destination="brn-QW-pzM" appends="YES" id="VDo-uu-BXc"/>
@@ -58,6 +70,7 @@
                     <tabBarItem key="tabBarItem" title="" image="Game" id="lEm-Vd-ceY"/>
                     <connections>
                         <outlet property="gameView" destination="NfL-JC-bMq" id="gGe-Tu-ZuV"/>
+                        <outlet property="score" destination="i3o-AN-4gy" id="Sg3-X5-H8m"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

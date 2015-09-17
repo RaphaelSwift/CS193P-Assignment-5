@@ -87,7 +87,17 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private var gameScore: Int = 0
+    @IBOutlet weak var score: UILabel!
+    
+    private var gameScore: Int = 0 {
+        didSet{
+            score?.text = "Score: \(gameScore)"
+        }
+    }
+    
+    override func prefersStatusBarHidden() -> Bool {
+        return true;
+    }
     
     //MARK: - Structs
     
