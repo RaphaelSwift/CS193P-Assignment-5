@@ -12,24 +12,20 @@ class SettingsTableViewController: UITableViewController {
 
     @IBOutlet weak var switcher: UISwitch! {
         didSet {
-            switcher.on = userDefaults.fetchSpecialBrickPreference()
+            switcher.on = userDefaults.specialBricks
         }
     }
     @IBOutlet weak var gravitySwitcher: UISwitch!
     @IBOutlet weak var stepper: UIStepper! {
         didSet {
-            if let bricks = userDefaults.fetchNumberOfBricks() {
-                stepper.value = Double(bricks)
-            } else {
-                stepper.value = stepper.minimumValue
-            }
+            stepper.value = Double(userDefaults.numberOfBricks)
             numberOfBricksLabel.text = "\(Int(stepper.value))"
         }
     }
     @IBOutlet weak var numberOfBricksLabel: UILabel!
     @IBOutlet weak var numberOfBallSegmentedControl: UISegmentedControl! {
         didSet {
-            numberOfBallSegmentedControl.selectedSegmentIndex = (userDefaults.fetchNumberOfBalls() ?? 1) - 1
+            numberOfBallSegmentedControl.selectedSegmentIndex = (userDefaults.numberOfBalls) - 1
             numberOfBallSegmentedControl.addTarget(self, action: "storeNumberOfBalls:", forControlEvents: UIControlEvents.ValueChanged)
         }
     }
@@ -37,12 +33,12 @@ class SettingsTableViewController: UITableViewController {
     private let userDefaults = UserDefaults()
     @IBOutlet weak var bouncinessSlider: UISlider! {
         didSet {
-            bouncinessSlider.value = userDefaults.fetchPreferedBallBounciness() ?? 1.0
+            bouncinessSlider.value = userDefaults.ballBounciness
         }
     }
     
     func storeNumberOfBalls(segmentController: UISegmentedControl) {
-        userDefaults.storeNumberOfBalls(numberOfBalls: segmentController.selectedSegmentIndex + 1)
+        userDefaults.numberOfBalls = segmentController.selectedSegmentIndex + 1
     }
     
     @IBAction func changedNumberOfBricks(sender: UIStepper) {
@@ -50,14 +46,14 @@ class SettingsTableViewController: UITableViewController {
     }
     
     @IBAction func changeNumberOfBricksTouchUpInside(sender: UIStepper) {
-        userDefaults.storeNumberOfBricks(numberOfBricks: Int(sender.value))
+        userDefaults.numberOfBricks = Int(sender.value)
     }
     
     @IBAction func switchSpecialBricksPreference(sender: UISwitch) {
-            userDefaults.storeSpecialBrickPreference(sender.on)
+            userDefaults.specialBricks = sender.on
     }
     
     @IBAction func changeBounciness(slider: UISlider) {
-        userDefaults.storePreferedBallBounciness(slider.value)
+        userDefaults.ballBounciness = slider.value
     }
 }

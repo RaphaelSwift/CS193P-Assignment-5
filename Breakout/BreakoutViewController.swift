@@ -46,13 +46,13 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     }
     
     private var numberOfBricks: Int {
-        return userDefaults.fetchNumberOfBricks() ?? 5
+        return userDefaults.numberOfBricks
     }
     
     private var numberOfBricksForCurrentGame: Int?
     
     private var numberOfBalls: Int  {
-        return userDefaults.fetchNumberOfBalls() ?? 1
+        return userDefaults.numberOfBalls
     }
     
     private var brickSize: CGSize {
@@ -63,7 +63,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     private var lastGameViewBounds: CGRect?
     
-    private var specialBricks: Bool { return userDefaults.fetchSpecialBrickPreference() }
+    private var specialBricks: Bool { return userDefaults.specialBricks }
     
     private let breakoutBehavior = BreakoutBehavior()
     private let settings = SettingsTableViewController()
@@ -184,7 +184,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(true)
-        breakoutBehavior.setElasticity(CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0))
+        breakoutBehavior.setElasticity(CGFloat(userDefaults.ballBounciness))
         if gameIsActive {
             breakoutBehavior.restartBalls()
         }
@@ -491,6 +491,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         alert.addAction(action)
         presentViewController(alert, animated: true, completion: nil)
     }
+    
 
     private func animateBrickDisappearance(view:UIView) {
         UIView.transitionWithView(view,

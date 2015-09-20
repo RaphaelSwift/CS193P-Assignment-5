@@ -1,6 +1,6 @@
 //
 //  UserDefaults.swift
-//  Smashtag
+//  Breakout
 //
 //  Created by Raphael Neuenschwander on 20.08.15.
 //  Copyright (c) 2015 Raphael Neuenschwander. All rights reserved.
@@ -20,34 +20,30 @@ class UserDefaults {
         static let SpecialBricksPreference = "UserDefaults.Key.SpecialBricksPreference"
     }
     
-    func storePreferedBallBounciness(bounciness: Float) {
-        userDefaults.setObject(bounciness, forKey: Key.PreferedBallBounciness)
-    }
-    func fetchPreferedBallBounciness() -> Float? {
-        return userDefaults.objectForKey(Key.PreferedBallBounciness) as? Float
-    }
-    
-    func storeNumberOfBalls(numberOfBalls number: Int) {
-        userDefaults.setObject(number, forKey: Key.NumberOfBalls)
+    private struct DefaultGameSettings {
+        static let BallBounciness: Float = 1.0
+        static let NumberOfBalls: Int = 1
+        static let NumberOfBricks: Int = 5
+        static let SpecialBricks: Bool = true
     }
     
-    func fetchNumberOfBalls() -> Int? {
-        return userDefaults.objectForKey(Key.NumberOfBalls) as? Int
+    var ballBounciness: Float {
+        get { return userDefaults.objectForKey(Key.PreferedBallBounciness) as? Float ?? DefaultGameSettings.BallBounciness }
+        set { userDefaults.setObject(newValue, forKey: Key.PreferedBallBounciness) }
     }
     
-    func storeNumberOfBricks(numberOfBricks number: Int) {
-        userDefaults.setObject(number, forKey: Key.NumberOfBricks)
+    var numberOfBalls: Int {
+        get { return userDefaults.objectForKey(Key.NumberOfBalls) as? Int ?? DefaultGameSettings.NumberOfBalls }
+        set { userDefaults.setObject(newValue, forKey: Key.NumberOfBalls)}
     }
     
-    func fetchNumberOfBricks() -> Int? {
-        return userDefaults.objectForKey(Key.NumberOfBricks) as? Int
+    var numberOfBricks: Int {
+        get { return userDefaults.objectForKey(Key.NumberOfBricks) as? Int ?? DefaultGameSettings.NumberOfBricks }
+        set { userDefaults.setObject(newValue, forKey: Key.NumberOfBricks)}
     }
     
-    func storeSpecialBrickPreference(specialBricks:Bool) {
-        userDefaults.setObject(specialBricks, forKey: Key.SpecialBricksPreference)
-    }
-    
-    func fetchSpecialBrickPreference() -> Bool {
-        return userDefaults.objectForKey(Key.SpecialBricksPreference) as? Bool ?? true
+    var specialBricks: Bool {
+        get { return userDefaults.objectForKey(Key.SpecialBricksPreference) as? Bool ?? DefaultGameSettings.SpecialBricks }
+        set { userDefaults.setObject(newValue, forKey: Key.SpecialBricksPreference) }
     }
 }

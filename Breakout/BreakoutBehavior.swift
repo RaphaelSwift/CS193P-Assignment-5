@@ -57,7 +57,7 @@ class BreakoutBehavior: UIDynamicBehavior
     
     private let settingsTableViewController = SettingsTableViewController()
     
-    private var ballBounciness: CGFloat { return CGFloat(userDefaults.fetchPreferedBallBounciness() ?? 1.0) }
+    private var ballBounciness: CGFloat { return CGFloat(userDefaults.ballBounciness) }
     
     private var ballsVelocity = [UIView:CGPoint]()
     
