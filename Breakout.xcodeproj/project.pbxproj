@@ -17,6 +17,7 @@
 		F6E8205A1B944602003E599E /* BreakoutBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E820591B944602003E599E /* BreakoutBehavior.swift */; };
 		F6EAB9F81B9DCF8B008E445E /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EAB9F71B9DCF8B008E445E /* UserDefaults.swift */; };
 		F6EAB9FA1B9DD719008E445E /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6EAB9F91B9DD719008E445E /* SettingsTableViewController.swift */; };
+		F6EF0AD61BB1BE820035714F /* hit.wav in Resources */ = {isa = PBXBuildFile; fileRef = F6EF0AD51BB1BE820035714F /* hit.wav */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		F6E820591B944602003E599E /* BreakoutBehavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BreakoutBehavior.swift; sourceTree = "<group>"; };
 		F6EAB9F71B9DCF8B008E445E /* UserDefaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
 		F6EAB9F91B9DD719008E445E /* SettingsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
+		F6EF0AD51BB1BE820035714F /* hit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = hit.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				F6E820321B941F85003E599E /* Breakout */,
+				F6EF0AD01BB1B40C0035714F /* Sounds */,
 				F6E820481B941F86003E599E /* BreakoutTests */,
 				F6E820311B941F85003E599E /* Products */,
 			);
@@ -122,6 +125,14 @@
 				F6E8204A1B941F86003E599E /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		F6EF0AD01BB1B40C0035714F /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				F6EF0AD51BB1BE820035714F /* hit.wav */,
+			);
+			name = Sounds;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -207,6 +218,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6EF0AD61BB1BE820035714F /* hit.wav in Resources */,
 				F6E8203B1B941F85003E599E /* Main.storyboard in Resources */,
 				F6E820401B941F85003E599E /* LaunchScreen.xib in Resources */,
 				F6E8203D1B941F85003E599E /* Images.xcassets in Resources */,
