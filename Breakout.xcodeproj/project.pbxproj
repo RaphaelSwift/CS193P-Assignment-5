@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F62F40701BB3220500AA3780 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62F406F1BB3220500AA3780 /* AudioPlayer.swift */; settings = {ASSET_TAGS = (); }; };
+		F62F40731BB33B2A00AA3780 /* ambientMusic.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F62F40721BB33B2A00AA3780 /* ambientMusic.mp3 */; settings = {ASSET_TAGS = (); }; };
 		F6E820361B941F85003E599E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E820351B941F85003E599E /* AppDelegate.swift */; };
 		F6E8203B1B941F85003E599E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F6E820391B941F85003E599E /* Main.storyboard */; };
 		F6E8203D1B941F85003E599E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F6E8203C1B941F85003E599E /* Images.xcassets */; };
@@ -31,6 +33,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F62F406F1BB3220500AA3780 /* AudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
+		F62F40721BB33B2A00AA3780 /* ambientMusic.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = ambientMusic.mp3; sourceTree = "<group>"; };
 		F6E820301B941F85003E599E /* Breakout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breakout.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6E820341B941F85003E599E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F6E820351B941F85003E599E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -95,6 +99,7 @@
 				F6EAB9F91B9DD719008E445E /* SettingsTableViewController.swift */,
 				F6E820391B941F85003E599E /* Main.storyboard */,
 				F6E820351B941F85003E599E /* AppDelegate.swift */,
+				F62F406F1BB3220500AA3780 /* AudioPlayer.swift */,
 				F6E820331B941F85003E599E /* Supporting Files */,
 			);
 			path = Breakout;
@@ -131,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				F6EF0AD51BB1BE820035714F /* hit.wav */,
+				F62F40721BB33B2A00AA3780 /* ambientMusic.mp3 */,
 			);
 			name = Sounds;
 			sourceTree = "<group>";
@@ -220,6 +226,7 @@
 			files = (
 				F6EF0AD61BB1BE820035714F /* hit.wav in Resources */,
 				F6E8203B1B941F85003E599E /* Main.storyboard in Resources */,
+				F62F40731BB33B2A00AA3780 /* ambientMusic.mp3 in Resources */,
 				F6E820401B941F85003E599E /* LaunchScreen.xib in Resources */,
 				F6E8203D1B941F85003E599E /* Images.xcassets in Resources */,
 			);
@@ -245,6 +252,7 @@
 				F6E820361B941F85003E599E /* AppDelegate.swift in Sources */,
 				F6E8205A1B944602003E599E /* BreakoutBehavior.swift in Sources */,
 				F6E820561B941FEC003E599E /* BreakoutViewController.swift in Sources */,
+				F62F40701BB3220500AA3780 /* AudioPlayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

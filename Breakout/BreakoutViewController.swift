@@ -32,6 +32,8 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
+    private let audioPlayer = AudioPlayer()
+    
     private var bricks = [String:Brick]()
     
     private var bricksRemaining: Int? {
@@ -181,6 +183,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     override func viewDidLoad() {
         super.viewDidLoad()
         loadSounds()
+        audioPlayer.tryToPlayMusic()
         breakoutBehavior.delegate = self
         animator.addBehavior(breakoutBehavior)
         breakoutBehavior.collider.collisionDelegate = self
