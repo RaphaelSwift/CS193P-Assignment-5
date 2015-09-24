@@ -48,8 +48,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         }
     }
     
-    private var hitSound: SystemSoundID = 0
-    
     private var numberOfBricks: Int {
         return userDefaults.numberOfBricks
     }
@@ -182,11 +180,10 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadSounds()
-        audioPlayer.tryToPlayMusic()
         breakoutBehavior.delegate = self
         animator.addBehavior(breakoutBehavior)
         breakoutBehavior.collider.collisionDelegate = self
+        audioPlayer.tryToPlayMusic()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -200,7 +197,6 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(true)
         let manager = AppDelegate.Motion.Manager
-        
         if manager.accelerometerAvailable {
             manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue()) { (data, error) -> Void in
                 
@@ -319,7 +315,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
                 breakoutBehavior.removeBezierPath(named: identifier)
                 breakoutBehavior.addBrick(brick.view)
                 animateBrickDisappearance(brick.view)
-                playHitSound()
+                audioPlayer.playHitBrickSystemSound()
                 gameScore += Score.PointPerBrickHit
                 bricksRemaining!--
                 
@@ -486,23 +482,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         brickView.layer.borderWidth = Constants.BrickBorderWidth
         return Brick(view: brickView, type: .Normal)
     }
-    
-    //MARK: - Sounds and Audio
-    
-    private func loadSounds() {
 
-        //Load sound
-        if let hitSoundPath = NSBundle.mainBundle().pathForResource("hit", ofType: "wav") {
-            let hitSoundURL = NSURL(fileURLWithPath: hitSoundPath)
-            AudioServicesCreateSystemSoundID(hitSoundURL, &hitSound)
-        }
-    }
-    
-    private func playHitSound() {
-        
-        //Play sound
-        AudioServicesPlaySystemSound(hitSound)
-    }
     
     //MARK: - View Animations and Alerts
     

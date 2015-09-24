@@ -13,54 +13,16 @@ import AVFoundation
 class AudioPlayer: NSObject, AVAudioPlayerDelegate
 {
     
-    //TODO: Clean Code, add system sound to audioPlayer class
-//    var audioSession: AVAudioSession {
-////        return AVAudioSession.sharedInstance()
-////    }
-////    
-////    var backgroundMusicPlayer: AVAudioPlayer?
-////
-////    override init() {
-////        super.init()
-////            if audioSession.otherAudioPlaying {
-////                do {
-////                    try audioSession.setCategory(AVAudioSessionCategorySoloAmbient)
-////                    backgroundMusicPlaying = false
-////                } catch let error as NSError {
-////                    NSLog(error.localizedDescription)
-////                }
-////            } else {
-////                do {
-////                    try audioSession.setCategory(AVAudioSessionCategoryAmbient)
-////                } catch let error as NSError {
-////                    NSLog(error.localizedDescription)
-////                }
-////            }
-////        
-////        
-////        if let backgroundMusicPath = NSBundle.mainBundle().pathForResource("ambientMusic", ofType: "mp3") {
-////            let backbroundMusicURL = NSURL(fileURLWithPath: backgroundMusicPath)
-////            do {
-////                self.backgroundMusicPlayer = try AVAudioPlayer(contentsOfURL: backbroundMusicURL)
-////                self.backgroundMusicPlayer?.delegate = self
-////                self.backgroundMusicPlayer?.numberOfLoops = -1
-////                
-////            } catch let error as NSError {
-////                NSLog(error.localizedDescription)
-////            }
-////            
-////        }
-////        
-////    }
-//    }
-
+    private var backgroundMusicPlaying: Bool = false
+    private var backgroundMusicInterrupted: Bool = false
+    private var hitBrickSound: SystemSoundID = 0
     
     private lazy var audioSession: AVAudioSession = {
         let session = AVAudioSession.sharedInstance()
-        if session.otherAudioPlaying {
+        if session.otherAudioPlaying { //Mix sound effects with audio already playing
             do {
                 try session.setCategory(AVAudioSessionCategorySoloAmbient)
-                //backgroundMusicPlaying = false
+                self.backgroundMusicPlaying = false
             } catch let error as NSError {
                 NSLog(error.localizedDescription)
             }
@@ -72,60 +34,60 @@ class AudioPlayer: NSObject, AVAudioPlayerDelegate
             }
         }
         return session
-    }()
+        }()
     
     private lazy var backgroundMusicPlayer: AVAudioPlayer? = {
-        
-        if let backgroundMusicPath = NSBundle.mainBundle().pathForResource("ambientMusic", ofType: "mp3") {
+        // Create audio player with background music
+        if let backgroundMusicPath = NSBundle.mainBundle().pathForResource(SoundPath.AmbientMusic, ofType: SoundPath.AmbientMusicType) {
             let backbroundMusicURL = NSURL(fileURLWithPath: backgroundMusicPath)
             do {
                 let player = try AVAudioPlayer(contentsOfURL: backbroundMusicURL)
-                player.delegate = self
-                player.numberOfLoops = -1
+                player.delegate = self // We need this so we can restart after interruptions
+                player.numberOfLoops = -1 // Negative number means loop forever
                 return player
                 
             } catch let error as NSError {
                 NSLog(error.localizedDescription)
             }
-
         }
         return nil
-    }()
+        }()
     
-    var backgroundMusicPlaying: Bool = false
-    var backgroundMusicInterrupted: Bool = false
+    override init() {
+        super.init()
+        configureSystemSound()
+    }
     
     func tryToPlayMusic() {
-        if backgroundMusicPlaying || backgroundMusicInterrupted {
+        if backgroundMusicPlaying || audioSession.otherAudioPlaying {
             return
         }
+        // Play background music if no other music is playing and we aren't playing already
         if let backgroundMusicPlayer = backgroundMusicPlayer {
             backgroundMusicPlayer.prepareToPlay()
             backgroundMusicPlayer.play()
             backgroundMusicPlaying = true
         }
-
     }
-//    
-//    private func configureAudioSession () {
-//        
-//        if audioSession.otherAudioPlaying {
-//            do {
-//                try audioSession.setCategory(AVAudioSessionCategorySoloAmbient)
-//                backgroundMusicPlaying = false
-//            } catch let error as NSError {
-//                NSLog(error.localizedDescription)
-//            }
-//        } else {
-//            do {
-//                try audioSession.setCategory(AVAudioSessionCategoryAmbient)
-//            } catch let error as NSError {
-//                NSLog(error.localizedDescription)
-//            }
-//        }
-//    }
     
-    //MARK: AVAudioPlayerDelegate
+    func stopPlayingMusic() {
+        backgroundMusicPlayer?.stop()
+    }
+    
+    func playHitBrickSystemSound() {
+        AudioServicesPlaySystemSound(hitBrickSound)
+    }
+    
+    //MARK: - Private Implementation
+    
+    private func configureSystemSound() {
+        if let hitSoundPath = NSBundle.mainBundle().pathForResource(SoundPath.HitBrickSound, ofType: SoundPath.HitBrickSoundType) {
+            let hitSoundURL = NSURL(fileURLWithPath: hitSoundPath)
+            AudioServicesCreateSystemSoundID(hitSoundURL, &hitBrickSound)
+        }
+    }
+    
+    //MARK: - AVAudioPlayerDelegate
     
     func audioPlayerBeginInterruption(player: AVAudioPlayer) {
         backgroundMusicInterrupted = true
@@ -133,8 +95,19 @@ class AudioPlayer: NSObject, AVAudioPlayerDelegate
     }
     
     func audioPlayerEndInterruption(player: AVAudioPlayer, withFlags flags: Int) {
+        //Since this method is only called if music was previously interrupted
+        //we know that the music has stopped playing and can now be resumed.
         tryToPlayMusic()
         backgroundMusicInterrupted = false
+    }
+    
+    //MARK: - SoundPath Constants
+    
+    private struct SoundPath {
+        static let AmbientMusic = "ambientMusic"
+        static let AmbientMusicType = "mp3"
+        static let HitBrickSound = "hit"
+        static let HitBrickSoundType = "wav"
     }
 
 }
