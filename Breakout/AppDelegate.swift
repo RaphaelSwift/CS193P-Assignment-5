@@ -17,6 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     struct Motion{
         static let Manager = CMMotionManager()
     }
-    
+
 }
 

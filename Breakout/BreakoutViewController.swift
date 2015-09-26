@@ -8,8 +8,9 @@
 
 import UIKit
 import AVFoundation
+import WatchConnectivity
 
-class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICollisionBehaviorDelegate, BreakoutBehaviorDelegate
+class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICollisionBehaviorDelegate, BreakoutBehaviorDelegate, WCSessionDelegate
 {
     @IBOutlet weak var gameView: BezierPathsView!
 
@@ -184,6 +185,7 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         animator.addBehavior(breakoutBehavior)
         breakoutBehavior.collider.collisionDelegate = self
         audioPlayer.tryToPlayMusic()
+        startWCSession() // Fine to start it here in our case as the actions we want to do will happen in this view controller
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -482,8 +484,39 @@ class BreakoutViewController: UIViewController, UIDynamicAnimatorDelegate, UICol
         brickView.layer.borderWidth = Constants.BrickBorderWidth
         return Brick(view: brickView, type: .Normal)
     }
-
     
+    //MARK: - Watch Connectivity
+    
+    private func startWCSession () {
+        if #available(iOS 9.0, *) {
+            if WCSession.isSupported() {
+                let session = WCSession.defaultSession()
+                session.delegate = self
+                session.activateSession()
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    @available(iOS 9.0, *)
+    // attempt to push balls using watch connectivity
+    func session(session: WCSession, didReceiveMessage message: [String : AnyObject], replyHandler: ([String : AnyObject]) -> Void) {
+        var replyMessage = [String:AnyObject]()
+        replyMessage["Reply"] = "RecievedMessage"
+        if let action = message["action"] as? String {
+            if action == "push ball" {
+                if ballView != nil && gameIsActive && view.window != nil {
+                    for ball in ballView! {
+                        breakoutBehavior.pushBall(ball)
+                        replyMessage["Reply"] = "Pushed"
+                    }
+                }
+            }
+        }
+        replyHandler(replyMessage)
+    }
+
     //MARK: - View Animations and Alerts
     
     private func gameOverAlert() {
